@@ -88,7 +88,32 @@
 
     <!-- Version Number -->
     <div id="version" style="position: absolute; top: 10px; right: 10px; color: #ffdd57;">
-        Versione: 1.0.1
+        Versione: 1.0.2
+    </div>
+
+    <!-- Sign-Up / Sign-In -->
+    <div id="authPage" class="input-container">
+        <button class="btn" onclick="showSignUp()">Sign-Up</button>
+        <button class="btn" onclick="showSignIn()">Sign-In</button>
+    </div>
+
+    <!-- Sign-Up Form -->
+    <div id="signUpPage" style="display: none;">
+        <h2>Register</h2>
+        <input type="email" id="emailSignUp" placeholder="Email" />
+        <input type="text" id="usernameSignUp" placeholder="Nome utente" />
+        <input type="password" id="passwordSignUp" placeholder="Password" />
+        <button class="btn" onclick="registerUser()">Register</button>
+        <button class="btn" onclick="backToAuth()">Indietro</button>
+    </div>
+
+    <!-- Sign-In Form -->
+    <div id="signInPage" style="display: none;">
+        <h2>Login</h2>
+        <input type="email" id="emailSignIn" placeholder="Email" />
+        <input type="password" id="passwordSignIn" placeholder="Password" />
+        <button class="btn" onclick="loginUser()">Login</button>
+        <button class="btn" onclick="backToAuth()">Indietro</button>
     </div>
 
     <!-- Main Menu -->
@@ -145,12 +170,69 @@
         <button class="btn" onclick="quitGame()">Esci</button>
     </div>
 
+    <!-- Changelog Page -->
+    <div id="changelogPage" style="display: none;">
+        <h2>📬 ChangeLogs - Version 1.0.2</h2>
+        <ul id="changelogList">
+            <li>Fixed grid size selection bug</li>
+            <li>Updated login and registration system</li>
+            <li>Improved language translation support</li>
+        </ul>
+        <button class="btn" onclick="backToMain()">Indietro</button>
+    </div>
+
     <footer>Made with ❤️ by Arciale</footer>
 
     <script>
         let registeredUsers = JSON.parse(localStorage.getItem('users')) || [];
         let currentUser = null;
         let currentGridSize = 10;
+
+        function showSignUp() {
+            document.getElementById('authPage').style.display = 'none';
+            document.getElementById('signUpPage').style.display = 'block';
+        }
+
+        function showSignIn() {
+            document.getElementById('authPage').style.display = 'none';
+            document.getElementById('signInPage').style.display = 'block';
+        }
+
+            function registerUser() {
+            const email = document.getElementById('emailSignUp').value;
+            const username = document.getElementById('usernameSignUp').value;
+            const password = document.getElementById('passwordSignUp').value;
+
+            if (email && username && password) {
+                registeredUsers.push({ email, username, password });
+                localStorage.setItem('users', JSON.stringify(registeredUsers));
+                alert('Successfully registered!');
+                backToAuth();
+            } else {
+                alert('Please fill all fields!');
+            }
+        }
+
+        function loginUser() {
+            const email = document.getElementById('emailSignIn').value;
+            const password = document.getElementById('passwordSignIn').value;
+
+            const user = registeredUsers.find(user => user.email === email && user.password === password);
+
+            if (user) {
+                currentUser = user;
+                document.getElementById('signInPage').style.display = 'none';
+                document.getElementById('mainPage').style.display = 'block';
+            } else {
+                alert('Invalid credentials!');
+            }
+        }
+
+        function backToAuth() {
+            document.getElementById('signUpPage').style.display = 'none';
+            document.getElementById('signInPage').style.display = 'none';
+            document.getElementById('authPage').style.display = 'block';
+        }
 
         function saveSettings() {
             const playerColor = document.getElementById('playerColor').value;
@@ -214,7 +296,7 @@
                 }
             };
 
-                   document.getElementById("createGameBtn").textContent = translations[language].createGameBtn;
+            document.getElementById("createGameBtn").textContent = translations[language].createGameBtn;
             document.getElementById("joinGameBtn").textContent = translations[language].joinGameBtn;
             document.getElementById("challengeComputerBtn").textContent = translations[language].challengeComputerBtn;
             document.getElementById("settingsBtn").textContent = translations[language].settingsBtn;
@@ -289,6 +371,12 @@
 
         function quitGame() {
             location.reload();
+        }
+
+        function backToMain() {
+            document.getElementById('settingsPage').style.display = 'none';
+            document.getElementById('changelogPage').style.display = 'none';
+            document.getElementById('mainPage').style.display = 'block';
         }
     </script>
 </body>
