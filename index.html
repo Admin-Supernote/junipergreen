@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -100,7 +100,7 @@
 
     <!-- Version Number -->
     <div id="version" style="position: absolute; top: 10px; right: 10px; color: #ffdd57;">
-        Versione: 1.0.3
+        Versione: 1.0.4
     </div>
 
     <!-- Sign-Up / Sign-In -->
@@ -136,38 +136,14 @@
 
     <!-- Main Menu -->
     <div id="mainPage" style="display: none;">
-        <button class="btn" id="createGameBtn" onclick="chooseGameMode()">Crea una Partita</button>
-        <button class="btn" id="joinGameBtn" onclick="joinGameSelector()">Entra in una Partita</button>
-        <button class="btn" id="challengeComputerBtn" onclick="chooseComputerLevel()">Sfida il Computer</button>
-        <button class="btn" id="settingsBtn" onclick="viewSettings()">Impostazioni</button>
-        <button class="btn" id="changelogBtn" onclick="viewChangelog()">Changelogs</button>
+        <button class="btn" id="createGameBtn" onclick="showPage('gridSelectionPage')">Crea una Partita</button>
+        <button class="btn" id="joinGameBtn" onclick="showPage('joinGamePage')">Entra in una Partita</button>
+        <button class="btn" id="challengeComputerBtn" onclick="showPage('computerLevelPage')">Sfida il Computer</button>
+        <button class="btn" id="settingsBtn" onclick="showPage('settingsPage')">Impostazioni</button>
+        <button class="btn" id="changelogBtn" onclick="showPage('changelogPage')">Changelogs</button>
     </div>
 
-    <!-- Settings with Flags and Color Picker -->
-    <div id="settingsPage" style="display: none;">
-        <h2>Impostazioni</h2>
-        <div class="language-selector">
-            <label for="languageSelector">Seleziona Lingua:</label>
-            <select id="languageSelector">
-                <option value="it"><img class="flag-icon" src="https://flagcdn.com/it.svg" alt="Italian">Italiano</option>
-                <option value="en"><img class="flag-icon" src="https://flagcdn.com/us.svg" alt="English">Inglese</option>
-                <option value="fr"><img class="flag-icon" src="https://flagcdn.com/fr.svg" alt="French">Francese</option>
-                <option value="es"><img class="flag-icon" src="https://flagcdn.com/es.svg" alt="Spanish">Spagnolo</option>
-                <option value="de"><img class="flag-icon" src="https://flagcdn.com/de.svg" alt="German">Tedesco</option>
-            </select>
-        </div>
-        <br/>
-        <label for="playerColor">Colore del giocatore:</label>
-        <input type="color" id="playerColor" value="#ffaa00" />
-        <br/>
-        <label for="opponentColor">Colore avversario:</label>
-        <input type="color" id="opponentColor" value="#ff0000" />
-        <br/>
-        <button class="btn" onclick="saveSettings()">Salva</button>
-        <button class="btn" onclick="backToMain()">Indietro</button>
-    </div>
-
-    <!-- Game Grid and Other Features As Previously -->
+    <!-- Pages -->
     <div id="gridSelectionPage" style="display: none;">
         <h2>Scegli la dimensione della griglia</h2>
         <button class="btn" onclick="startGame(10)">Griglia 10</button>
@@ -182,13 +158,13 @@
         <button class="btn" onclick="startGame(100)">Griglia 100</button>
     </div>
 
-    <div id="gamePage" style="display: none;">
-        <h2 id="gameMessage">Inizia la partita!</h2>
-        <div id="gameGrid"></div>
-        <button class="btn" onclick="quitGame()">Esci</button>
+    <div id="computerLevelPage" style="display: none;">
+        <h2>Scegli il livello del Computer</h2>
+        <button class="btn" onclick="startGame(10, 'easy')">Facile</button>
+        <button class="btn" onclick="startGame(10, 'medium')">Medio</button>
+        <button class="btn" onclick="startGame(10, 'hard')">Difficile</button>
     </div>
 
-        <!-- Changelog Page -->
     <div id="changelogPage" style="display: none;">
         <h2>📬 ChangeLogs - Version 1.0.3</h2>
         <ul id="changelogList">
@@ -197,6 +173,13 @@
             <li>Improved error handling for incorrect login</li>
             <li>Updated to version 1.0.3</li>
         </ul>
+        <button class="btn" onclick="backToMain()">Indietro</button>
+    </div>
+
+    <div id="joinGamePage" style="display: none;">
+        <h2>Inserisci il codice partita</h2>
+        <input type="text" id="gameCodeInput" placeholder="Codice Partita" />
+        <button class="btn" onclick="joinGame()">Entra</button>
         <button class="btn" onclick="backToMain()">Indietro</button>
     </div>
 
@@ -217,18 +200,25 @@
             document.getElementById('signInPage').style.display = 'block';
         }
 
-        function registerUser() {
+                function registerUser() {
             const email = document.getElementById('emailSignUp').value;
             const username = document.getElementById('usernameSignUp').value;
             const password = document.getElementById('passwordSignUp').value;
 
+            // Check if email already exists
+            const existingUser = registeredUsers.find(user => user.email === email);
+            if (existingUser) {
+                alert("L'email è già registrata. Usa un'altra email.");
+                return;
+            }
+
             if (email && username && password) {
                 registeredUsers.push({ email, username, password });
                 localStorage.setItem('users', JSON.stringify(registeredUsers));
-                alert('Successfully registered!');
+                alert('Registrazione avvenuta con successo!');
                 backToAuth();
             } else {
-                alert('Please fill all fields!');
+                alert('Compila tutti i campi!');
             }
         }
 
@@ -243,7 +233,7 @@
                 document.getElementById('signInPage').style.display = 'none';
                 document.getElementById('mainPage').style.display = 'block';
             } else {
-                alert('Invalid credentials!');
+                alert('Credenziali non valide!');
                 document.getElementById('emailSignIn').value = ''; // Clear email
                 document.getElementById('passwordSignIn').value = ''; // Clear password
             }
@@ -326,18 +316,15 @@
             document.getElementById("opponentColor").labels[0].textContent = translations[language].opponentColor;
         }
 
-        window.onload = function () {
-            const storedLanguage = localStorage.getItem('language');
-            if (storedLanguage) {
-                document.getElementById('languageSelector').value = storedLanguage;
-                changeLanguage(storedLanguage);
-            }
-        };
+        function showPage(pageId) {
+            const pages = ['gridSelectionPage', 'computerLevelPage', 'changelogPage', 'settingsPage', 'joinGamePage'];
+            pages.forEach(page => document.getElementById(page).style.display = 'none');
+            document.getElementById(pageId).style.display = 'block';
+        }
 
         function startGame(gridSize) {
             currentGridSize = gridSize;
-            document.getElementById('gridSelectionPage').style.display = 'none';
-            document.getElementById('gamePage').style.display = 'block';
+            showPage('gamePage');
             setupGrid(gridSize);
         }
 
@@ -392,12 +379,6 @@
 
         function quitGame() {
             location.reload();
-        }
-
-        function backToMain() {
-            document.getElementById('settingsPage').style.display = 'none';
-            document.getElementById('changelogPage').style.display = 'none';
-            document.getElementById('mainPage').style.display = 'block';
         }
 
         function togglePassword(inputId) {
