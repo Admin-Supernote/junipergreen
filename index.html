@@ -100,7 +100,7 @@
 
     <!-- Version Number -->
     <div id="version" style="position: absolute; top: 10px; right: 10px; color: #ffdd57;">
-        Versione: 1.0.4
+        Versione: 1.0.3
     </div>
 
     <!-- Sign-Up / Sign-In -->
@@ -135,11 +135,12 @@
     </div>
 
     <!-- Main Menu -->
-    <div id="mainPage" style="display: none;"><button class="btn" id="createGameBtn" onclick="showPage('gridSelectionPage')">Crea una Partita</button>
-<button class="btn" id="joinGameBtn" onclick="showPage('joinGamePage')">Entra in una Partita</button>
-<button class="btn" id="challengeComputerBtn" onclick="showPage('computerLevelPage')">Sfida il Computer</button>
-<button class="btn" id="settingsBtn" onclick="showPage('settingsPage')">Impostazioni</button>
-<button class="btn" id="changelogBtn" onclick="showPage('changelogPage')">Changelogs</button>
+    <div id="mainPage">
+        <button class="btn" id="createGameBtn" onclick="showPage('gridSelectionPage')">Crea una Partita</button>
+        <button class="btn" id="joinGameBtn" onclick="showPage('joinGamePage')">Entra in una Partita</button>
+        <button class="btn" id="challengeComputerBtn" onclick="showPage('computerLevelPage')">Sfida il Computer</button>
+        <button class="btn" id="settingsBtn" onclick="showPage('settingsPage')">Impostazioni</button>
+        <button class="btn" id="changelogBtn" onclick="showPage('changelogPage')">Changelogs</button>
     </div>
 
     <!-- Pages -->
@@ -199,19 +200,18 @@
             document.getElementById('signInPage').style.display = 'block';
         }
 
-                function registerUser() {
+        function registerUser() {
             const email = document.getElementById('emailSignUp').value;
             const username = document.getElementById('usernameSignUp').value;
             const password = document.getElementById('passwordSignUp').value;
 
-            // Check if email already exists
             const existingUser = registeredUsers.find(user => user.email === email);
             if (existingUser) {
                 alert("L'email è già registrata. Usa un'altra email.");
                 return;
             }
 
-            if (email && username && password) {
+                        if (email && username && password) {
                 registeredUsers.push({ email, username, password });
                 localStorage.setItem('users', JSON.stringify(registeredUsers));
                 alert('Registrazione avvenuta con successo!');
@@ -315,17 +315,10 @@
             document.getElementById("opponentColor").labels[0].textContent = translations[language].opponentColor;
         }
 
-function showPage(pageId) {
-    const pages = ['gridSelectionPage', 'computerLevelPage', 'changelogPage', 'settingsPage', 'joinGamePage', 'mainPage'];
-    pages.forEach(page => {
-        document.getElementById(page).style.display = 'none';
-    });
-    document.getElementById(pageId).style.display = 'block';
-}
-
-function backToMain() {
-    showPage('mainPage');
-}
+        function showPage(pageId) {
+            const pages = ['gridSelectionPage', 'computerLevelPage', 'changelogPage', 'settingsPage', 'joinGamePage', 'mainPage'];
+            pages.forEach(page => document.getElementById(page).style.display = 'none');
+            document.getElementById(pageId).style.display = 'block';
         }
 
         function startGame(gridSize) {
