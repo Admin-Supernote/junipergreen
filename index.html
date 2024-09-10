@@ -135,7 +135,7 @@
     </div>
 
     <!-- Main Menu -->
-    <div id="mainPage">
+    <div id="mainPage" style="display: none;">
         <button class="btn" id="createGameBtn" onclick="showPage('gridSelectionPage')">Crea una Partita</button>
         <button class="btn" id="joinGameBtn" onclick="showPage('joinGamePage')">Entra in una Partita</button>
         <button class="btn" id="challengeComputerBtn" onclick="showPage('computerLevelPage')">Sfida il Computer</button>
@@ -205,13 +205,14 @@
             const username = document.getElementById('usernameSignUp').value;
             const password = document.getElementById('passwordSignUp').value;
 
+            // Check if email already exists
             const existingUser = registeredUsers.find(user => user.email === email);
             if (existingUser) {
                 alert("L'email è già registrata. Usa un'altra email.");
                 return;
             }
 
-                        if (email && username && password) {
+            if (email && username && password) {
                 registeredUsers.push({ email, username, password });
                 localStorage.setItem('users', JSON.stringify(registeredUsers));
                 alert('Registrazione avvenuta con successo!');
