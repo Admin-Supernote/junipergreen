@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juniper Green Multiplayer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1d1f27;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            font-size: 3rem;
+            color: #ffdd57;
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 15px 30px;
+            background-color: #ffdd57;
+            color: #1d1f27;
+            font-size: 1.2rem;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #ffaa00;
+        }
+        .input-container {
+            margin-bottom: 20px;
+        }
+        #gameGrid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 10px;
+        }
+        .grid-cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #333;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .grid-cell.selected {
+            background-color: #ffaa00;
+            cursor: not-allowed;
+        }
+        footer {
+            position: absolute;
+            bottom: 10px;
+            text-align: center;
+            width: 100%;
+            color: #ffdd57;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="title">Juniper Green Multiplayer</h1>
+
+    <!-- Username Input -->
+    <div id="usernameInputPage" class="input-container">
+        <input type="text" id="username" placeholder="Inserisci un nome utente unico" required />
+        <button class="btn" id="confirmUsernameBtn" onclick="confirmUsername()">Conferma Nome Utente</button>
+        <p id="usernameError" style="color: red; display: none;">Nome utente già in uso. Scegli un altro nome.</p>
+    </div>
+
+    <!-- Main Page -->
+    <div id="mainPage" style="display: none;">
+        <button class="btn" id="createGameBtn" onclick="chooseGameMode()">Crea una Partita</button>
+        <button class="btn" id="joinGameBtn" onclick="joinGameSelector()">Entra in una Partita</button>
+        <button class="btn" id="challengeComputerBtn" onclick="chooseComputerLevel()">Sfida il Computer</button>
+        <button class="btn" id="settingsBtn" onclick="viewSettings()">Impostazioni</button>
+    </div>
+
+    <!-- Game Mode Selection (Public/Private) -->
+    <div id="gameModeSelectionPage" style="display: none;">
+        <h2>Scegli il tipo di partita</h2>
+        <button class="btn" onclick="chooseGrid('public')">Publica</button>
+        <button class="btn" onclick="chooseGrid('private')">Privata</button>
+    </div>
+
+    <!-- Grid Size Selection -->
+    <div id="gridSelectionPage" style="display: none;">
+        <h2>Scegli la dimensione della griglia</h2>
+        <button class="btn" onclick="startGame(20)">Griglia 20</button>
+        <button class="btn" onclick="startGame(30)">Griglia 30</button>
+        <button class="btn" onclick="startGame(40)">Griglia 40</button>
+        <button class="btn" onclick="startGame(50)">Griglia 50</button>
+        <button class="btn" onclick="startGame(100)">Griglia 100</button>
+    </div>
+
+    <!-- Join Game Selector -->
+    <div id="joinGamePage" style="display: none;">
+        <h2>Entra in una partita esistente</h2>
+        <input type="text" id="joinGameId" placeholder="Inserisci il Codice del Gioco" />
+        <button class="btn" onclick="joinGameById()">Entra con Codice</button>
+        <button class="btn" onclick="randomJoinGame()">Random Join</button>
+        <button class="btn" onclick="showGameList()">Selettore di Partite</button>
+        <button class="btn" onclick="backToMain()">Indietro</button>
+    </div>
+
+    <!-- Computer Level Selection -->
+    <div id="computerLevelPage" style="display: none;">
+        <h2>Scegli la difficoltà</h2>
+        <button class="btn" onclick="startGameWithComputer('easy')">Facile</button>
+        <button class="btn" onclick="startGameWithComputer('medium')">Medio</button>
+        <button class="btn" onclick="startGameWithComputer('hard')">Difficile</button>
+    </div>
+
+    <!-- Game Page -->
+    <div id="gamePage" style="display: none;">
+        <h2 id="gameMessage"></h2>
+        <div id="gameGrid"></div>
+        <button class="btn" id="quitGameBtn" onclick="quitGame()">Esci</button>
+    </div>
+
+    <footer>Made with love ❤️ by Arciale</footer>
+
+    <script>
+        let activeUsernames = [];
+        let invitedPlayers = [];
+        let gameSessions = {};
+        let currentLanguage = 'it';
+        let isGameCreator = false;
+        let gameId = '';
+        let gridSize = 20;
+        let computerMode = false;
+        let computerDifficulty = 'easy';
+
+        // Translations for all text elements
+        const translations = {
+            en: {
+                title: "Juniper Green Multiplayer",
+                waitingMessage: "Waiting for Players...",
+                gameId: "Game ID: ",
+                playerCount: "Players: ",
+                invitePlaceholder: "Invite a player by username",
+                startGame: "Start Game",
+                quit: "Quit",
+                usernameError: "Username already taken. Please choose another one.",
+                confirmUsername: "Confirm Username",
+                createGame: "Create a Game",
+                invites: "Invites",
+                settings: "Settings",
+                back: "Back",
+                joinGameMessage: "Join an existing game",
+                version: "Version: ",
+            },
+            it: {
+                title: "Juniper Green Multigiocatore",
+                waitingMessage: "In attesa di giocatori...",
+                gameId: "Codice gioco: ",
+                playerCount: "Giocatori: ",
+                invitePlaceholder: "Invita un giocatore per nome utente",
+                startGame: "Avvia il Gioco",
+                quit: "Esci",
+                usernameError: "Nome utente già in uso. Scegli un altro nome.",
+                confirmUsername: "Conferma Nome Utente",
+                createGame: "Crea un Gioco",
+                invites: "Inviti",
+                settings: "Impostazioni",
+                back: "Indietro",
+                joinGameMessage: "Entra in un gioco esistente",
+                version: "Versione: ",
+            },
+        };
+
+        function confirmUsername() {
+            const username = document.getElementById('username').value;
+            if (username && !activeUsernames.includes(username)) {
+                activeUsernames.push(username);
+                localStorage.setItem('username', username);
+                document.getElementById('usernameInputPage').style.display = 'none';
+                document.getElementById('mainPage').style.display = 'block';
+            } else {
+                document.getElementById('usernameError').style.display = 'block';
+            }
+        }
+
+        function chooseGameMode() {
+            document.getElementById('mainPage').style.display = 'none';
+            document.getElementById('gameModeSelectionPage').style.display = 'block';
+        }
+
+        function chooseGrid(type) {
+            isGameCreator = true;
+            document.getElementById('gameModeSelectionPage').style.display = 'none';
+            document.getElementById('gridSelectionPage').style.display = 'block';
+        }
+
+        function startGame(size) {
+            gridSize = size;
+            document.getElementById('gridSelectionPage').style.display = 'none';
+            document.getElementById('gamePage').style.display = 'block';
+            setupGameGrid(gridSize);
+        }
+
+        function chooseComputerLevel() {
+            document.getElementById('mainPage').style.display = 'none';
+            document.getElementById('computerLevelPage').style.display = 'block';
+        }
+
+          function startGameWithComputer(difficulty) {
+            computerDifficulty = difficulty;
+            computerMode = true;
+            document.getElementById('computerLevelPage').style.display = 'none';
+            document.getElementById('gridSelectionPage').style.display = 'block';
+        }
+
+        function setupGameGrid(size) {
+            const gridContainer = document.getElementById('gameGrid');
+            gridContainer.innerHTML = ''; // Clear previous grid
+            gridContainer.style.gridTemplateColumns = `repeat(${Math.min(size, 10)}, 1fr)`;
+
+            for (let i = 1; i <= size; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.textContent = i;
+                cell.onclick = () => selectNumber(i, cell);
+                gridContainer.appendChild(cell);
+            }
+        }
+
+        let currentPlayer = 1;
+        let lastSelectedNumber = null;
+
+        function selectNumber(number, cell) {
+            if (cell.classList.contains('selected')) {
+                return; // Number is already selected
+            }
+
+            if (lastSelectedNumber !== null && !isValidMove(lastSelectedNumber, number)) {
+                alert('Mossa non valida! Scegli un multiplo o un divisore del numero precedente.');
+                return;
+            }
+
+            cell.classList.add('selected');
+            lastSelectedNumber = number;
+
+            if (checkGameOver()) {
+                alert(`Gioco terminato! Il vincitore è il Giocatore ${currentPlayer}`);
+                return;
+            }
+
+            if (computerMode && currentPlayer === 2) {
+                computerMove();
+            } else {
+                currentPlayer = currentPlayer === 1 ? 2 : 1;
+                updateGameMessage();
+            }
+        }
+
+        function isValidMove(lastNumber, newNumber) {
+            return newNumber % lastNumber === 0 || lastNumber % newNumber === 0;
+        }
+
+        function checkGameOver() {
+            const cells = document.querySelectorAll('.grid-cell');
+            for (let cell of cells) {
+                if (!cell.classList.contains('selected')) {
+                    const number = parseInt(cell.textContent);
+                    if (isValidMove(lastSelectedNumber, number)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function computerMove() {
+            const availableNumbers = Array.from(document.querySelectorAll('.grid-cell:not(.selected)'));
+            let move = null;
+
+            if (computerDifficulty === 'easy') {
+                move = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
+            } else {
+                const validMoves = availableNumbers.filter(cell => isValidMove(lastSelectedNumber, parseInt(cell.textContent)));
+                if (validMoves.length > 0) {
+                    move = computerDifficulty === 'medium'
+                        ? validMoves[Math.floor(Math.random() * validMoves.length)]
+                        : validMoves[0]; // Hard mode picks the first valid move
+                }
+            }
+
+            if (move) {
+                selectNumber(parseInt(move.textContent), move);
+            } else {
+                alert('Il computer non ha mosse valide! Hai vinto!');
+            }
+        }
+
+        function updateGameMessage() {
+            document.getElementById('gameMessage').textContent = `È il turno del Giocatore ${currentPlayer}`;
+        }
+
+        function quitGame() {
+            location.reload();
+        }
+
+        function joinGameSelector() {
+            document.getElementById('mainPage').style.display = 'none';
+            document.getElementById('joinGamePage').style.display = 'block';
+        }
+
+        function randomJoinGame() {
+            // Logic for joining a random public game
+            alert('Partita random selezionata!');
+        }
+
+        function joinGameById() {
+            const gameId = document.getElementById('joinGameId').value;
+            if (gameSessions[gameId]) {
+                alert('Partita trovata, unisciti!');
+                // Continue with joining the game
+            } else {
+                alert('ID di gioco non valido!');
+            }
+        }
+
+        function showGameList() {
+            // Display a list of public games
+            alert('Lista partite pubbliche mostrata!');
+        }
+    </script>
+</body>
+</html>
+           
