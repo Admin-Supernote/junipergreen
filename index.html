@@ -30,6 +30,8 @@
             cursor: pointer;
             margin: 10px;
             transition: background-color 0.3s ease;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
         }
         .btn:hover {
             background-color: #ffaa00;
@@ -52,6 +54,7 @@
             color: white;
             font-size: 1.5rem;
             cursor: pointer;
+            border-radius: 8px;
         }
         .grid-cell.selected {
             background-color: #ffaa00;
@@ -64,6 +67,20 @@
             width: 100%;
             color: #ffdd57;
         }
+        .flag-icon {
+            width: 24px;
+            margin-right: 5px;
+        }
+        .language-selector {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .language-selector select {
+            margin-left: 10px;
+            padding: 5px;
+            font-size: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -71,32 +88,7 @@
 
     <!-- Version Number -->
     <div id="version" style="position: absolute; top: 10px; right: 10px; color: #ffdd57;">
-        Versione: 1.0.0
-    </div>
-
-    <!-- Sign-Up / Sign-In -->
-    <div id="authPage" class="input-container">
-        <button class="btn" onclick="showSignUp()">Sign-Up</button>
-        <button class="btn" onclick="showSignIn()">Sign-In</button>
-    </div>
-
-    <!-- Sign-Up Form -->
-    <div id="signUpPage" style="display: none;">
-        <h2>Register</h2>
-        <input type="email" id="emailSignUp" placeholder="Email" />
-        <input type="text" id="usernameSignUp" placeholder="Nome utente" />
-        <input type="password" id="passwordSignUp" placeholder="Password" />
-        <button class="btn" onclick="registerUser()">Register</button>
-        <button class="btn" onclick="backToAuth()">Indietro</button>
-    </div>
-
-    <!-- Sign-In Form -->
-    <div id="signInPage" style="display: none;">
-        <h2>Login</h2>
-        <input type="email" id="emailSignIn" placeholder="Email" />
-        <input type="password" id="passwordSignIn" placeholder="Password" />
-        <button class="btn" onclick="loginUser()">Login</button>
-        <button class="btn" onclick="backToAuth()">Indietro</button>
+        Versione: 1.0.1
     </div>
 
     <!-- Main Menu -->
@@ -108,37 +100,49 @@
         <button class="btn" id="changelogBtn" onclick="viewChangelog()">Changelogs</button>
     </div>
 
-    <!-- Settings with Color Picker and Language Selection -->
+    <!-- Settings with Flags and Color Picker -->
     <div id="settingsPage" style="display: none;">
         <h2>Impostazioni</h2>
-        <label for="languageSelector">Seleziona Lingua:</label>
-        <select id="languageSelector">
-            <option value="it">Italiano</option>
-            <option value="en">Inglese</option>
-            <option value="fr">Francese</option>
-            <option value="es">Spagnolo</option>
-            <option value="de">Tedesco</option>
-        </select>
+        <div class="language-selector">
+            <label for="languageSelector">Seleziona Lingua:</label>
+            <select id="languageSelector">
+                <option value="it"><img class="flag-icon" src="https://flagcdn.com/it.svg" alt="Italian">Italiano</option>
+                <option value="en"><img class="flag-icon" src="https://flagcdn.com/us.svg" alt="English">Inglese</option>
+                <option value="fr"><img class="flag-icon" src="https://flagcdn.com/fr.svg" alt="French">Francese</option>
+                <option value="es"><img class="flag-icon" src="https://flagcdn.com/es.svg" alt="Spanish">Spagnolo</option>
+                <option value="de"><img class="flag-icon" src="https://flagcdn.com/de.svg" alt="German">Tedesco</option>
+            </select>
+        </div>
         <br/>
         <label for="playerColor">Colore del giocatore:</label>
         <input type="color" id="playerColor" value="#ffaa00" />
         <br/>
-        <label for="computerColor">Colore del computer:</label>
-        <input type="color" id="computerColor" value="#ff0000" />
+        <label for="opponentColor">Colore avversario:</label>
+        <input type="color" id="opponentColor" value="#ff0000" />
         <br/>
         <button class="btn" onclick="saveSettings()">Salva</button>
         <button class="btn" onclick="backToMain()">Indietro</button>
     </div>
 
-    <!-- Changelog Page -->
-    <div id="changelogPage" style="display: none;">
-        <h2>📬 ChangeLogs - Version 1.0.0</h2>
-        <ul id="changelogList">
-            <li>Fixed various bugs in the game logic.</li>
-            <li>Added player vs computer mode.</li>
-            <li>Implemented user registration and login.</li>
-        </ul>
-        <button class="btn" onclick="backToMain()">Indietro</button>
+    <!-- Game Grid and Other Features As Previously -->
+    <div id="gridSelectionPage" style="display: none;">
+        <h2>Scegli la dimensione della griglia</h2>
+        <button class="btn" onclick="startGame(10)">Griglia 10</button>
+        <button class="btn" onclick="startGame(20)">Griglia 20</button>
+        <button class="btn" onclick="startGame(30)">Griglia 30</button>
+        <button class="btn" onclick="startGame(40)">Griglia 40</button>
+        <button class="btn" onclick="startGame(50)">Griglia 50</button>
+        <button class="btn" onclick="startGame(60)">Griglia 60</button>
+        <button class="btn" onclick="startGame(70)">Griglia 70</button>
+        <button class="btn" onclick="startGame(80)">Griglia 80</button>
+        <button class="btn" onclick="startGame(90)">Griglia 90</button>
+        <button class="btn" onclick="startGame(100)">Griglia 100</button>
+    </div>
+
+    <div id="gamePage" style="display: none;">
+        <h2 id="gameMessage">Inizia la partita!</h2>
+        <div id="gameGrid"></div>
+        <button class="btn" onclick="quitGame()">Esci</button>
     </div>
 
     <footer>Made with ❤️ by Arciale</footer>
@@ -146,185 +150,146 @@
     <script>
         let registeredUsers = JSON.parse(localStorage.getItem('users')) || [];
         let currentUser = null;
-
-        function showSignUp() {
-            document.getElementById('authPage').style.display = 'none';
-            document.getElementById('signUpPage').style.display = 'block';
-        }
-
-        function showSignIn() {
-            document.getElementById('authPage').style.display = 'none';
-            document.getElementById('signInPage').style.display = 'block';
-        }
-
-        function registerUser() {
-            const email = document.getElementById('emailSignUp').value;
-            const username = document.getElementById('usernameSignUp').value;
-            const password = document.getElementById('passwordSignUp').value;
-
-            if (email && username && password) {
-                registeredUsers.push({ email, username, password });
-                localStorage.setItem('users', JSON.stringify(registeredUsers));
-                sendConfirmationEmail(email);
-                alert('Successfully registered!');
-
-                backToAuth();
-            } else {
-                alert('Please fill all fields!');
-            }
-        }
-
-        function sendConfirmationEmail(email) {
-            console.log(`Confirmation email sent to: ${email}`);
-        }
-
-        function loginUser() {
-            const email = document.getElementById('emailSignIn').value;
-            const password = document.getElementById('passwordSignIn').value;
-
-            const user = registeredUsers.find(user => user.email === email && user.password === password);
-
-            if (user) {
-                currentUser = user;
-                document.getElementById('signInPage').style.display = 'none';
-                document.getElementById('mainPage').style.display = 'block';
-            } else {
-                alert('Invalid credentials!');
-            }
-        }
-
-        function backToAuth() {
-            document.getElementById('signUpPage').style.display = 'none';
-            document.getElementById('signInPage').style.display = 'none';
-            document.getElementById('authPage').style.display = 'block';
-        }
-
-        function viewSettings() {
-            document.getElementById('mainPage').style.display = 'none';
-            document.getElementById('settingsPage').style.display = 'block';
-        }
+        let currentGridSize = 10;
 
         function saveSettings() {
             const playerColor = document.getElementById('playerColor').value;
-            const computerColor = document.getElementById('computerColor').value;
+            const opponentColor = document.getElementById('opponentColor').value;
             const language = document.getElementById('languageSelector').value;
 
             localStorage.setItem('playerColor', playerColor);
-            localStorage.setItem('computerColor', computerColor);
+            localStorage.setItem('opponentColor', opponentColor);
             localStorage.setItem('language', language);
 
+            changeLanguage(language);
             backToMain();
         }
 
-        function viewChangelog() {
-            document.getElementById('mainPage').style.display = 'none';
-            document.getElementById('changelogPage').style.display = 'block';
-      }
-        function backToMain() {
-            document.getElementById('settingsPage').style.display = 'none';
-            document.getElementById('changelogPage').style.display = 'none';
-            document.getElementById('mainPage').style.display = 'block';
-        }
-
-        // When the page loads, retrieve saved settings and user information
-        window.onload = function () {
-            const storedUsers = localStorage.getItem('users');
-            const storedPlayerColor = localStorage.getItem('playerColor');
-            const storedComputerColor = localStorage.getItem('computerColor');
-            const storedLanguage = localStorage.getItem('language');
-
-            if (storedUsers) {
-                registeredUsers = JSON.parse(storedUsers);
-            }
-
-            if (storedPlayerColor && storedComputerColor) {
-                document.getElementById('playerColor').value = storedPlayerColor;
-                document.getElementById('computerColor').value = storedComputerColor;
-            }
-
-            if (storedLanguage) {
-                document.getElementById('languageSelector').value = storedLanguage;
-                changeLanguage(storedLanguage);  // Apply the stored language to the UI
-            }
-
-            if (currentUser) {
-                document.getElementById('authPage').style.display = 'none';
-                document.getElementById('mainPage').style.display = 'block';
-            }
-        };
-
-        // Function to apply language settings to the UI
         function changeLanguage(language) {
-            const elementsToTranslate = {
-                title: "title",
-                createGameBtn: "Crea una Partita",
-                joinGameBtn: "Entra in una Partita",
-                challengeComputerBtn: "Sfida il Computer",
-                settingsBtn: "Impostazioni",
-                changelogBtn: "Changelogs",
-                playerColor: "Colore del giocatore:",
-                computerColor: "Colore del computer:"
-            };
-
             const translations = {
-                it: {
-                    title: "Juniper Green Multiplayer",
-                    createGameBtn: "Crea una Partita",
-                    joinGameBtn: "Entra in una Partita",
-                    challengeComputerBtn: "Sfida il Computer",
-                    settingsBtn: "Impostazioni",
-                    changelogBtn: "Changelogs",
-                    playerColor: "Colore del giocatore:",
-                    computerColor: "Colore del computer:"
-                },
                 en: {
-                    title: "Juniper Green Multiplayer",
                     createGameBtn: "Create a Game",
                     joinGameBtn: "Join a Game",
                     challengeComputerBtn: "Challenge the Computer",
                     settingsBtn: "Settings",
                     changelogBtn: "Changelogs",
-                    playerColor: "Player Color:",
-                    computerColor: "Computer Color:"
+                    playerColor: "Player Color",
+                    opponentColor: "Opponent Color"
+                },
+                it: {
+                    createGameBtn: "Crea una Partita",
+                    joinGameBtn: "Entra in una Partita",
+                    challengeComputerBtn: "Sfida il Computer",
+                    settingsBtn: "Impostazioni",
+                    changelogBtn: "Changelogs",
+                    playerColor: "Colore del giocatore",
+                    opponentColor: "Colore avversario"
+                },
+                fr: {
+                    createGameBtn: "Créer une Partie",
+                    joinGameBtn: "Rejoindre une Partie",
+                    challengeComputerBtn: "Défier l'Ordinateur",
+                    settingsBtn: "Paramètres",
+                    changelogBtn: "Changelogs",
+                    playerColor: "Couleur du Joueur",
+                    opponentColor: "Couleur de l'Adversaire"
+                },
+                es: {
+                    createGameBtn: "Crear una Partida",
+                    joinGameBtn: "Unirse a una Partida",
+                    challengeComputerBtn: "Desafiar al Computador",
+                    settingsBtn: "Ajustes",
+                    changelogBtn: "Changelogs",
+                    playerColor: "Color del Jugador",
+                    opponentColor: "Color del Oponente"
+                },
+                de: {
+                    createGameBtn: "Erstellen Sie ein Spiel",
+                    joinGameBtn: "Spiel Beitreten",
+                    challengeComputerBtn: "Computer Herausfordern",
+                    settingsBtn: "Einstellungen",
+                    changelogBtn: "Changelogs",
+                    playerColor: "Spielerfarbe",
+                    opponentColor: "Gegnerfarbe"
                 }
-                // Other language translations go here
             };
 
-            Object.keys(elementsToTranslate).forEach(key => {
-                document.getElementById(key).textContent = translations[language][key];
-            });
+                   document.getElementById("createGameBtn").textContent = translations[language].createGameBtn;
+            document.getElementById("joinGameBtn").textContent = translations[language].joinGameBtn;
+            document.getElementById("challengeComputerBtn").textContent = translations[language].challengeComputerBtn;
+            document.getElementById("settingsBtn").textContent = translations[language].settingsBtn;
+            document.getElementById("changelogBtn").textContent = translations[language].changelogBtn;
+            document.getElementById("playerColor").labels[0].textContent = translations[language].playerColor;
+            document.getElementById("opponentColor").labels[0].textContent = translations[language].opponentColor;
         }
 
-        function updateChangelog(version, changes) {
-            const changelogList = document.getElementById('changelogList');
-            changelogList.innerHTML = '';
+        window.onload = function () {
+            const storedLanguage = localStorage.getItem('language');
+            if (storedLanguage) {
+                document.getElementById('languageSelector').value = storedLanguage;
+                changeLanguage(storedLanguage);
+            }
+        };
 
-            const versionTitle = document.createElement('h2');
-            versionTitle.textContent = `📬 ChangeLogs - Version ${version}`;
-            changelogList.appendChild(versionTitle);
-
-            changes.forEach(change => {
-                const listItem = document.createElement('li');
-                listItem.textContent = change;
-                changelogList.appendChild(listItem);
-            });
-
-            localStorage.setItem('changelog', JSON.stringify({ version, changes }));
+        function startGame(gridSize) {
+            currentGridSize = gridSize;
+            document.getElementById('gridSelectionPage').style.display = 'none';
+            document.getElementById('gamePage').style.display = 'block';
+            setupGrid(gridSize);
         }
 
-        // Example function to update the changelog
-        function updateToNewVersion() {
-            const version = "1.0.1";
-            const changes = [
-                "Added new login and register system.",
-                "Fixed bugs related to the computer mode.",
-                "Improved UI for selecting grid sizes."
-            ];
-            updateChangelog(version, changes);
+        function setupGrid(gridSize) {
+            const gridContainer = document.getElementById('gameGrid');
+            gridContainer.innerHTML = ''; // Clear previous grid
+
+            for (let i = 1; i <= gridSize; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.textContent = i;
+                cell.onclick = () => selectNumber(i, cell);
+                gridContainer.appendChild(cell);
+            }
         }
 
-        // Call this function after a version update
-        updateToNewVersion();
+        let currentPlayer = 1;
+        let lastSelectedNumber = null;
+
+        function selectNumber(number, cell) {
+            if (cell.classList.contains('selected')) return;
+
+            if (lastSelectedNumber !== null && !isValidMove(lastSelectedNumber, number)) {
+                alert('Mossa non valida! Scegli un multiplo o un divisore del numero precedente.');
+                return;
+            }
+
+            cell.classList.add('selected');
+            lastSelectedNumber = number;
+
+            if (checkGameOver()) {
+                alert(`Gioco terminato! Il vincitore è il Giocatore ${currentPlayer}`);
+                return;
+            }
+
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            updateGameMessage();
+        }
+
+        function isValidMove(lastNumber, newNumber) {
+            return newNumber % lastNumber === 0 || lastNumber % newNumber === 0;
+        }
+
+        function checkGameOver() {
+            const cells = document.querySelectorAll('.grid-cell:not(.selected)');
+            return Array.from(cells).every(cell => !isValidMove(lastSelectedNumber, parseInt(cell.textContent)));
+        }
+
+        function updateGameMessage() {
+            document.getElementById('gameMessage').textContent = `È il turno del Giocatore ${currentPlayer}`;
+        }
+
+        function quitGame() {
+            location.reload();
+        }
     </script>
 </body>
 </html>
