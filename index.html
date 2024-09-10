@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juniper Green Multiplayer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1d1f27;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            font-size: 3rem;
+            color: #ffdd57;
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 15px 30px;
+            background-color: #ffdd57;
+            color: #1d1f27;
+            font-size: 1.2rem;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #ffaa00;
+        }
+        .input-container {
+            margin-bottom: 20px;
+        }
+        #gameGrid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 10px;
+        }
+        .grid-cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #333;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .grid-cell.selected {
+            background-color: #ffaa00;
+            cursor: not-allowed;
+        }
+        footer {
+            position: absolute;
+            bottom: 10px;
+            text-align: center;
+            width: 100%;
+            color: #ffdd57;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="title">Juniper Green Multiplayer</h1>
+
+    <!-- Version Number -->
+    <div id="version" style="position: absolute; top: 10px; right: 10px; color: #ffdd57;">
+        Versione: 1.0.0
+    </div>
+
+    <!-- Sign-Up / Sign-In -->
+    <div id="authPage" class="input-container">
+        <button class="btn" onclick="showSignUp()">Sign-Up</button>
+        <button class="btn" onclick="showSignIn()">Sign-In</button>
+    </div>
+
+    <!-- Sign-Up Form -->
+    <div id="signUpPage" style="display: none;">
+        <h2>Register</h2>
+        <input type="email" id="emailSignUp" placeholder="Email" />
+        <input type="text" id="usernameSignUp" placeholder="Nome utente" />
+        <input type="password" id="passwordSignUp" placeholder="Password" />
+        <button class="btn" onclick="registerUser()">Register</button>
+        <button class="btn" onclick="backToAuth()">Indietro</button>
+    </div>
+
+    <!-- Sign-In Form -->
+    <div id="signInPage" style="display: none;">
+        <h2>Login</h2>
+        <input type="email" id="emailSignIn" placeholder="Email" />
+        <input type="password" id="passwordSignIn" placeholder="Password" />
+        <button class="btn" onclick="loginUser()">Login</button>
+        <button class="btn" onclick="backToAuth()">Indietro</button>
+    </div>
+
+    <!-- Main Menu -->
+    <div id="mainPage" style="display: none;">
+        <button class="btn" id="createGameBtn" onclick="chooseGameMode()">Crea una Partita</button>
+        <button class="btn" id="joinGameBtn" onclick="joinGameSelector()">Entra in una Partita</button>
+        <button class="btn" id="challengeComputerBtn" onclick="chooseComputerLevel()">Sfida il Computer</button>
+        <button class="btn" id="settingsBtn" onclick="viewSettings()">Impostazioni</button>
+        <button class="btn" id="changelogBtn" onclick="viewChangelog()">Changelogs</button>
+    </div>
+
+    <!-- Settings with Color Picker -->
+    <div id="settingsPage" style="display: none;">
+        <h2>Impostazioni</h2>
+        <label for="playerColor">Colore del giocatore:</label>
+        <input type="color" id="playerColor" value="#ffaa00" />
+        <br/>
+        <label for="computerColor">Colore del computer:</label>
+        <input type="color" id="computerColor" value="#ff0000" />
+        <br/>
+        <button class="btn" onclick="saveSettings()">Salva</button>
+        <button class="btn" onclick="backToMain()">Indietro</button>
+    </div>
+
+    <!-- Changelog Page -->
+    <div id="changelogPage" style="display: none;">
+        <h2>📬 ChangeLogs - Version 1.0.0</h2>
+        <ul id="changelogList">
+            <li>Fixed various bugs in the game logic.</li>
+            <li>Added player vs computer mode.</li>
+            <li>Implemented user registration and login.</li>
+        </ul>
+        <button class="btn" onclick="backToMain()">Indietro</button>
+    </div>
+
+    <footer>Made with ❤️ by Arciale</footer>
+
+    <script>
+        let registeredUsers = JSON.parse(localStorage.getItem('users')) || [];
+        let currentUser = null;
+
+        function showSignUp() {
+            document.getElementById('authPage').style.display = 'none';
+            document.getElementById('signUpPage').style.display = 'block';
+        }
+
+        function showSignIn() {
+            document.getElementById('authPage').style.display = 'none';
+            document.getElementById('signInPage').style.display = 'block';
+        }
+
+        function registerUser() {
+            const email = document.getElementById('emailSignUp').value;
+            const username = document.getElementById('usernameSignUp').value;
+            const password = document.getElementById('passwordSignUp').value;
+
+            if (email && username && password) {
+                registeredUsers.push({ email, username, password });
+                localStorage.setItem('users', JSON.stringify(registeredUsers));
+                sendConfirmationEmail(email);
+                alert('Successfully registered!');
+
+                backToAuth();
+            } else {
+                alert('Please fill all fields!');
+            }
+        }
+
+        function sendConfirmationEmail(email) {
+            console.log(`Confirmation email sent to: ${email}`);
+        }
+
+        function loginUser() {
+            const email = document.getElementById('emailSignIn').value;
+            const password = document.getElementById('passwordSignIn').value;
+
+            const user = registeredUsers.find(user => user.email === email && user.password === password);
+
+            if (user) {
+                currentUser = user;
+                document.getElementById('signInPage').style.display = 'none';
+                document.getElementById('mainPage').style.display = 'block';
+            } else {
+                alert('Invalid credentials!');
+            }
+        }
+
+        function backToAuth() {
+            document.getElementById('signUpPage').style.display = 'none';
+            document.getElementById('signInPage').style.display = 'none';
+            document.getElementById('authPage').style.display = 'block';
+        }
+
+        function viewSettings() {
+            document.getElementById('mainPage').style.display = 'none';
+            document.getElementById('settingsPage').style.display = 'block';
+        }
+
+        function saveSettings() {
+            const playerColor = document.getElementById('playerColor').value;
+            const computerColor = document.getElementById('computerColor').value;
+
+            localStorage.setItem('playerColor', playerColor);
+            localStorage.setItem('computerColor', computerColor);
+
+            backToMain();
+        }
+
+        function viewChangelog() {
+            document.getElementById('mainPage').style.display = 'none';
+            document.getElementById('changelogPage').style.display = 'block';
+        }
+
+        function backToMain() {
+            document.getElementById('settingsPage').style.display = 'none';
+            document.getElementById('changelogPage').style.display = 'none';
+            document.getElementById('mainPage').style.display = 'block';
+        }
+
+        // When the user updates the code, the changelog and user data persist
+        window.onload = function () {
+            const storedUsers = localStorage.getItem('users');
+            const storedPlayerColor = localStorage.getItem('playerColor');
+            const storedComputerColor = localStorage.getItem('computerColor');
+
+            if (storedUsers) {
+                registeredUsers = JSON.parse(storedUsers);
+            }
+
+            if (storedPlayerColor && storedComputerColor) {
+                document.getElementById('playerColor').value = storedPlayerColor;
+                document.getElementById('computerColor').value = storedComputerColor;
+            }
+
+            if (currentUser) {
+                document.getElementById('authPage').style.display = 'none';
+                document.getElementById('mainPage').style.display = 'block';
+            }
+        };
+
+        function updateChangelog(version, changes) {
+            const changelogList = document.getElementById('changelogList');
+            changelogList.innerHTML = '';
+
+            const versionTitle = document.createElement('h2');
+            versionTitle.textContent = `📬 ChangeLogs - Version ${version}`;
+            changelogList.appendChild(versionTitle);
+
+            changes.forEach(change => {
+                const listItem = document.createElement('li');
+                listItem.textContent = change;
+                changelogList.appendChild(listItem);
+            });
+
+            localStorage.setItem('changelog', JSON.stringify({ version, changes }));
+        }
+
+        // Example function to update the changelog
+        function updateToNewVersion() {
+            const version = "1.0.1";
+            const changes = [
+                "Added new login and register system.",
+                "Fixed bugs related to the computer mode.",
+                "Improved UI for selecting grid sizes."
+            ];
+            updateChangelog(version, changes);
+        }
+
+        // Call this function after a version update
+        updateToNewVersion();
+    </script>
+</body>
+</html>
