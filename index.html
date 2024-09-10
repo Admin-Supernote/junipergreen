@@ -135,12 +135,11 @@
     </div>
 
     <!-- Main Menu -->
-    <div id="mainPage" style="display: none;">
-        <button class="btn" id="createGameBtn" onclick="showPage('gridSelectionPage')">Crea una Partita</button>
-        <button class="btn" id="joinGameBtn" onclick="showPage('joinGamePage')">Entra in una Partita</button>
-        <button class="btn" id="challengeComputerBtn" onclick="showPage('computerLevelPage')">Sfida il Computer</button>
-        <button class="btn" id="settingsBtn" onclick="showPage('settingsPage')">Impostazioni</button>
-        <button class="btn" id="changelogBtn" onclick="showPage('changelogPage')">Changelogs</button>
+    <div id="mainPage" style="display: none;"><button class="btn" id="createGameBtn" onclick="showPage('gridSelectionPage')">Crea una Partita</button>
+<button class="btn" id="joinGameBtn" onclick="showPage('joinGamePage')">Entra in una Partita</button>
+<button class="btn" id="challengeComputerBtn" onclick="showPage('computerLevelPage')">Sfida il Computer</button>
+<button class="btn" id="settingsBtn" onclick="showPage('settingsPage')">Impostazioni</button>
+<button class="btn" id="changelogBtn" onclick="showPage('changelogPage')">Changelogs</button>
     </div>
 
     <!-- Pages -->
@@ -316,10 +315,17 @@
             document.getElementById("opponentColor").labels[0].textContent = translations[language].opponentColor;
         }
 
-        function showPage(pageId) {
-            const pages = ['gridSelectionPage', 'computerLevelPage', 'changelogPage', 'settingsPage', 'joinGamePage'];
-            pages.forEach(page => document.getElementById(page).style.display = 'none');
-            document.getElementById(pageId).style.display = 'block';
+function showPage(pageId) {
+    const pages = ['gridSelectionPage', 'computerLevelPage', 'changelogPage', 'settingsPage', 'joinGamePage', 'mainPage'];
+    pages.forEach(page => {
+        document.getElementById(page).style.display = 'none';
+    });
+    document.getElementById(pageId).style.display = 'block';
+}
+
+function backToMain() {
+    showPage('mainPage');
+}
         }
 
         function startGame(gridSize) {
