@@ -81,6 +81,18 @@
             padding: 5px;
             font-size: 1rem;
         }
+        .password-container {
+            position: relative;
+            display: inline-block;
+        }
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #aaa;
+        }
     </style>
 </head>
 <body>
@@ -88,7 +100,7 @@
 
     <!-- Version Number -->
     <div id="version" style="position: absolute; top: 10px; right: 10px; color: #ffdd57;">
-        Versione: 1.0.2
+        Versione: 1.0.3
     </div>
 
     <!-- Sign-Up / Sign-In -->
@@ -102,7 +114,10 @@
         <h2>Register</h2>
         <input type="email" id="emailSignUp" placeholder="Email" />
         <input type="text" id="usernameSignUp" placeholder="Nome utente" />
-        <input type="password" id="passwordSignUp" placeholder="Password" />
+        <div class="password-container">
+            <input type="password" id="passwordSignUp" placeholder="Password" />
+            <span class="toggle-password" onclick="togglePassword('passwordSignUp')">👁️</span>
+        </div>
         <button class="btn" onclick="registerUser()">Register</button>
         <button class="btn" onclick="backToAuth()">Indietro</button>
     </div>
@@ -111,7 +126,10 @@
     <div id="signInPage" style="display: none;">
         <h2>Login</h2>
         <input type="email" id="emailSignIn" placeholder="Email" />
-        <input type="password" id="passwordSignIn" placeholder="Password" />
+        <div class="password-container">
+            <input type="password" id="passwordSignIn" placeholder="Password" />
+            <span class="toggle-password" onclick="togglePassword('passwordSignIn')">👁️</span>
+        </div>
         <button class="btn" onclick="loginUser()">Login</button>
         <button class="btn" onclick="backToAuth()">Indietro</button>
     </div>
@@ -170,13 +188,14 @@
         <button class="btn" onclick="quitGame()">Esci</button>
     </div>
 
-    <!-- Changelog Page -->
+        <!-- Changelog Page -->
     <div id="changelogPage" style="display: none;">
-        <h2>📬 ChangeLogs - Version 1.0.2</h2>
+        <h2>📬 ChangeLogs - Version 1.0.3</h2>
         <ul id="changelogList">
-            <li>Fixed grid size selection bug</li>
-            <li>Updated login and registration system</li>
-            <li>Improved language translation support</li>
+            <li>Fixed button functionality</li>
+            <li>Added show/hide password toggle</li>
+            <li>Improved error handling for incorrect login</li>
+            <li>Updated to version 1.0.3</li>
         </ul>
         <button class="btn" onclick="backToMain()">Indietro</button>
     </div>
@@ -198,7 +217,7 @@
             document.getElementById('signInPage').style.display = 'block';
         }
 
-            function registerUser() {
+        function registerUser() {
             const email = document.getElementById('emailSignUp').value;
             const username = document.getElementById('usernameSignUp').value;
             const password = document.getElementById('passwordSignUp').value;
@@ -225,6 +244,8 @@
                 document.getElementById('mainPage').style.display = 'block';
             } else {
                 alert('Invalid credentials!');
+                document.getElementById('emailSignIn').value = ''; // Clear email
+                document.getElementById('passwordSignIn').value = ''; // Clear password
             }
         }
 
@@ -377,6 +398,12 @@
             document.getElementById('settingsPage').style.display = 'none';
             document.getElementById('changelogPage').style.display = 'none';
             document.getElementById('mainPage').style.display = 'block';
+        }
+
+        function togglePassword(inputId) {
+            const inputField = document.getElementById(inputId);
+            const type = inputField.type === 'password' ? 'text' : 'password';
+            inputField.type = type;
         }
     </script>
 </body>
