@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juniper Green Multiplayer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1d1f27;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            font-size: 3rem;
+            color: #ffdd57;
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 15px 30px;
+            background-color: #ffdd57;
+            color: #1d1f27;
+            font-size: 1.2rem;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #ffaa00;
+        }
+        .input-container {
+            margin-bottom: 20px;
+        }
+        #waitingPage, #invitesPage, #settingsPage {
+            display: none;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="title">Juniper Green Multiplayer</h1>
+
+    <!-- Username Input -->
+    <div id="usernameInputPage" class="input-container">
+        <input type="text" id="username" placeholder="Enter your unique username" required />
+        <button class="btn" onclick="confirmUsername()">Confirm Username</button>
+    </div>
+
+    <!-- Main Page with Buttons -->
+    <div id="mainPage" style="display: none;">
+        <button class="btn" onclick="createGame()">Create a Game</button>
+        <button class="btn" onclick="viewInvites()">Invites</button>
+        <button class="btn" onclick="viewSettings()">Settings</button>
+    </div>
+
+    <!-- Waiting Page -->
+    <div id="waitingPage">
+        <h2>Waiting for Players...</h2>
+        <p id="playerCount">Players: 1</p>
+        <button class="btn" onclick="startGame()" id="startGameBtn" style="display: none;">Start Game</button>
+        <button class="btn" onclick="quitGame()">Quit</button>
+    </div>
+
+    <!-- Settings Page -->
+    <div id="settingsPage">
+        <h2>Settings</h2>
+        <label for="languageSelector">Select Language:</label>
+        <select id="languageSelector" onchange="changeLanguage()">
+            <option value="en">English</option>
+            <option value="it">Italiano</option>
+            <option value="fr">Français</option>
+            <option value="es">Español</option>
+            <option value="de">Deutsch</option>
+        </select>
+        <button class="btn" onclick="backToMain()">Back</button>
+    </div>
+
+    <script>
+        // Load username and language if already set in localStorage
+        window.onload = function() {
+            const storedUsername = localStorage.getItem('username');
+            const storedLanguage = localStorage.getItem('language');
+
+            if (storedUsername) {
+                document.getElementById('username').value = storedUsername;
+                document.getElementById('usernameInputPage').style.display = 'none';
+                document.getElementById('mainPage').style.display = 'block';
+            }
+
+            if (storedLanguage) {
+                document.getElementById('languageSelector').value = storedLanguage;
+                changeLanguage();
+            }
+        };
+
+        // Confirm the username and store it in localStorage
+        function confirmUsername() {
+            const username = document.getElementById('username').value;
+            if (username) {
+                localStorage.setItem('username', username);
+                document.getElementById('usernameInputPage').style.display = 'none';
+                document.getElementById('mainPage').style.display = 'block';
+            } else {
+                alert('Please enter a username.');
+            }
+        }
+
+        // Function to handle language change and store it in localStorage
+        function changeLanguage() {
+            const language = document.getElementById('languageSelector').value;
+            localStorage.setItem('language', language);
+            // Update UI based on selected language (this part can be expanded with translations)
+            if (language === 'en') {
+                document.getElementById('title').textContent = "Juniper Green Multiplayer";
+            } else if (language === 'it') {
+                document.getElementById('title').textContent = "Juniper Green Multigiocatore";
+            } else if (language === 'fr') {
+                document.getElementById('title').textContent = "Juniper Green Multijoueur";
+            } else if (language === 'es') {
+                document.getElementById('title').textContent = "Juniper Green Multijugador";
+            } else if (language === 'de') {
+                document.getElementById('title').textContent = "Juniper Green Mehrspieler";
+            }
+        }
+
+        function createGame() {
+            alert('Creating game...');
+            // Game creation logic goes here
+            document.getElementById('mainPage').style.display = 'none';
+            document.getElementById('waitingPage').style.display = 'block';
+        }
+
+        function viewInvites() {
+            alert('Viewing invites...');
+            // Invite handling logic goes here
+        }
+
+        function viewSettings() {
+            document.getElementById('mainPage').style.display = 'none';
+            document.getElementById('settingsPage').style.display = 'block';
+        }
+
+        function backToMain() {
+            document.getElementById('settingsPage').style.display = 'none';
+            document.getElementById('mainPage').style.display = 'block';
+        }
+
+        function startGame() {
+            alert('Starting the game...');
+            // Game starting logic goes here
+        }
+
+        function quitGame() {
+            alert('Quitting the game...');
+            // Game quitting logic goes here
+        }
+    </script>
+</body>
+</html>
