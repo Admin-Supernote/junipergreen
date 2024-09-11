@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juniper Green Multiplayer</title>
+    <title>Juniper Green Multiplayer - Versione 1.0.0</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -36,10 +36,17 @@
         .btn:hover {
             background-color: #ffaa00;
         }
-        .input-container {
-            margin-bottom: 20px;
+        #changelog {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #ffdd57;
+            cursor: pointer;
         }
-        #gameGrid {
+        .hidden {
+            display: none;
+        }
+        .grid-container {
             display: grid;
             grid-template-columns: repeat(10, 1fr);
             gap: 10px;
@@ -60,278 +67,265 @@
             background-color: #ffaa00;
             cursor: not-allowed;
         }
-        footer {
-            position: absolute;
-            bottom: 10px;
-            text-align: center;
-            width: 100%;
-            color: #ffdd57;
-        }
         .flag-icon {
-            width: 24px;
-            margin-right: 5px;
-        }
-        .language-selector {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .language-selector select {
-            margin-left: 10px;
-            padding: 5px;
-            font-size: 1rem;
-        }
-        .password-container {
-            position: relative;
-            display: inline-block;
-        }
-        .toggle-password {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
+            width: 30px;
             cursor: pointer;
-            color: #aaa;
+            margin-right: 10px;
+        }
+        .language-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .input-field {
+            padding: 10px;
+            margin: 5px;
+            font-size: 1rem;
         }
     </style>
 </head>
 <body>
-    <h1 id="title">Juniper Green Multiplayer</h1>
+    <h1 id="title">Juniper Green Multiplayer - Versione 1.0.0</h1>
 
-    <!-- Version Number -->
-    <div id="version" style="position: absolute; top: 10px; right: 10px; color: #ffdd57;">
-        Versione: 1.0.3
+    <!-- Language Selection -->
+    <div class="language-container">
+        <img src="flag_en.png" alt="English" class="flag-icon" onclick="changeLanguage('en')">
+        <img src="flag_it.png" alt="Italiano" class="flag-icon" onclick="changeLanguage('it')">
+        <img src="flag_fr.png" alt="Français" class="flag-icon" onclick="changeLanguage('fr')">
+        <img src="flag_es.png" alt="Español" class="flag-icon" onclick="changeLanguage('es')">
+        <img src="flag_de.png" alt="Deutsch" class="flag-icon" onclick="changeLanguage('de')">
     </div>
 
-    <!-- Sign-Up / Sign-In -->
-    <div id="authPage" class="input-container">
-        <button class="btn" onclick="showSignUp()">Sign-Up</button>
-        <button class="btn" onclick="showSignIn()">Sign-In</button>
-    </div>
-
-    <!-- Sign-Up Form -->
-    <div id="signUpPage" style="display: none;">
-        <h2>Register</h2>
-        <input type="email" id="emailSignUp" placeholder="Email" />
-        <input type="text" id="usernameSignUp" placeholder="Nome utente" />
-        <div class="password-container">
-            <input type="password" id="passwordSignUp" placeholder="Password" />
-            <span class="toggle-password" onclick="togglePassword('passwordSignUp')">👁️</span>
-        </div>
-        <button class="btn" onclick="registerUser()">Register</button>
-        <button class="btn" onclick="backToAuth()">Indietro</button>
-    </div>
-
-    <!-- Sign-In Form -->
-    <div id="signInPage" style="display: none;">
-        <h2>Login</h2>
-        <input type="email" id="emailSignIn" placeholder="Email" />
-        <div class="password-container">
-            <input type="password" id="passwordSignIn" placeholder="Password" />
-            <span class="toggle-password" onclick="togglePassword('passwordSignIn')">👁️</span>
-        </div>
-        <button class="btn" onclick="loginUser()">Login</button>
-        <button class="btn" onclick="backToAuth()">Indietro</button>
+    <!-- Login / Signup -->
+    <div id="loginPage" class="login-container">
+        <input type="text" id="username" placeholder="Nome utente" class="input-field">
+        <input type="password" id="password" placeholder="Password" class="input-field">
+        <button class="btn" onclick="loginUser()">Accedi</button>
+        <button class="btn" onclick="registerUser()">Registrati</button>
     </div>
 
     <!-- Main Menu -->
-    <div id="mainPage" style="display: none;">
-        <button class="btn" id="createGameBtn" onclick="showPage('gridSelectionPage')">Crea una Partita</button>
-        <button class="btn" id="joinGameBtn" onclick="showPage('joinGamePage')">Entra in una Partita</button>
-        <button class="btn" id="challengeComputerBtn" onclick="showPage('computerLevelPage')">Sfida il Computer</button>
-        <button class="btn" id="settingsBtn" onclick="showPage('settingsPage')">Impostazioni</button>
-        <button class="btn" id="changelogBtn" onclick="showPage('changelogPage')">Changelogs</button>
+    <div id="mainMenu" class="hidden">
+        <button class="btn" id="createGameBtn" onclick="createGame()">Crea Partita</button>
+        <button class="btn" id="joinGameBtn" onclick="joinGame()">Entra in Partita</button>
+        <button class="btn" id="settingsBtn" onclick="openSettings()">Impostazioni</button>
+        <div id="changelog" onclick="showChangelog()">📬 Changelog</div>
     </div>
 
-    <!-- Pages -->
-    <div id="gridSelectionPage" style="display: none;">
-        <h2>Scegli la dimensione della griglia</h2>
-        <button class="btn" onclick="startGame(10)">Griglia 10</button>
-        <button class="btn" onclick="startGame(20)">Griglia 20</button>
-        <button class="btn" onclick="startGame(30)">Griglia 30</button>
-        <button class="btn" onclick="startGame(40)">Griglia 40</button>
-        <button class="btn" onclick="startGame(50)">Griglia 50</button>
-        <button class="btn" onclick="startGame(60)">Griglia 60</button>
-        <button class="btn" onclick="startGame(70)">Griglia 70</button>
-        <button class="btn" onclick="startGame(80)">Griglia 80</button>
-        <button class="btn" onclick="startGame(90)">Griglia 90</button>
-        <button class="btn" onclick="startGame(100)">Griglia 100</button>
+    <!-- Grid Selection -->
+    <div id="gridSelection" class="hidden">
+        <h2 id="gridTitle">Scegli la dimensione della griglia</h2>
+        <button class="btn" onclick="selectGrid(10)">Griglia 10</button>
+        <button class="btn" onclick="selectGrid(20)">Griglia 20</button>
+        <button class="btn" onclick="selectGrid(30)">Griglia 30</button>
+        <button class="btn" onclick="selectGrid(40)">Griglia 40</button>
     </div>
 
-    <div id="computerLevelPage" style="display: none;">
-        <h2>Scegli il livello del Computer</h2>
-        <button class="btn" onclick="startGame(10, 'easy')">Facile</button>
-        <button class="btn" onclick="startGame(10, 'medium')">Medio</button>
-        <button class="btn" onclick="startGame(10, 'hard')">Difficile</button>
+    <!-- Mode Selection -->
+    <div id="gameModeSelection" class="hidden">
+        <h2 id="modeTitle">Seleziona modalità di gioco</h2>
+        <button class="btn" id="humanBtn" onclick="startHumanGame()">Gioca con Umano</button>
+        <button class="btn" id="computerBtn" onclick="startComputerGame()">Sfida il Computer</button>
     </div>
 
-    <div id="changelogPage" style="display: none;">
-        <h2>📬 ChangeLogs - Version 1.0.3</h2>
-        <ul id="changelogList">
-            <li>Fixed button functionality</li>
-            <li>Added show/hide password toggle</li>
-            <li>Improved error handling for incorrect login</li>
-            <li>Updated to version 1.0.3</li>
+    <!-- Difficulty Selection -->
+    <div id="difficultySelection" class="hidden">
+        <h2 id="difficultyTitle">Seleziona la difficoltà</h2>
+        <button class="btn" onclick="startComputerGame('facile')">Facile</button>
+        <button class="btn" onclick="startComputerGame('medio')">Medio</button>
+        <button class="btn" onclick="startComputerGame('difficile')">Difficile</button>
+    </div>
+
+    <!-- Game Grid -->
+    <div id="gameGrid" class="hidden">
+        <h2 id="gameGridTitle">Griglia di Gioco</h2>
+        <div class="grid-container" id="grid"></div>
+        <p id="gameMessage">È il turno del Giocatore 1</p>
+        <button class="btn" onclick="quitGame()">Abbandona Gioco</button>
+    </div>
+
+    <!-- Changelog Section -->
+    <div id="changelogPage" class="hidden">
+        <h2>📬 Changelog - Versione 1.0.0</h2>
+        <ul>
+            <li>Implementata funzionalità di login e registrazione.</li>
+            <li>Aggiunta selezione della lingua.</li>
+            <li>Griglie di gioco configurabili.</li>
+            <li>Selezione di difficoltà per sfide contro il computer.</li>
         </ul>
-        <button class="btn" onclick="backToMain()">Indietro</button>
+        <button class="btn" onclick="backToMain()">Torna al menu</button>
     </div>
-
-    <div id="joinGamePage" style="display: none;">
-        <h2>Inserisci il codice partita</h2>
-        <input type="text" id="gameCodeInput" placeholder="Codice Partita" />
-        <button class="btn" onclick="joinGame()">Entra</button>
-        <button class="btn" onclick="backToMain()">Indietro</button>
-    </div>
-
-    <footer>Made with ❤️ by Arciale</footer>
 
     <script>
-        let registeredUsers = JSON.parse(localStorage.getItem('users')) || [];
-                let currentUser = null;
         let currentGridSize = 10;
+        let currentPlayer = 1;
+        let lastSelectedNumber = null;
+        let registeredUsers = JSON.parse(localStorage.getItem('users')) || [];
+        let currentUser = null;
 
-        function showSignUp() {
-            document.getElementById('authPage').style.display = 'none';
-            document.getElementById('signUpPage').style.display = 'block';
-        }
-
-        function showSignIn() {
-            document.getElementById('authPage').style.display = 'none';
-            document.getElementById('signInPage').style.display = 'block';
-        }
-
-        function registerUser() {
-            const email = document.getElementById('emailSignUp').value;
-            const username = document.getElementById('usernameSignUp').value;
-            const password = document.getElementById('passwordSignUp').value;
-
-            const existingUser = registeredUsers.find(user => user.email === email);
-            if (existingUser) {
-                alert("L'email è già registrata. Usa un'altra email.");
-                return;
+        const translations = {
+            en: {
+                title: "Juniper Green Multiplayer - Version 1.0.0",
+                createGameBtn: "Create Game",
+                joinGameBtn: "Join Game",
+                settingsBtn: "Settings",
+                changelog: "📬 Changelog",
+                gridTitle: "Choose Grid Size",
+                modeTitle: "Choose Game Mode",
+                humanBtn: "Play with Human",
+                computerBtn: "Challenge Computer",
+                difficultyTitle: "Select Difficulty",
+                gameGridTitle: "Game Grid",
+                turnMessage: "It's Player's Turn",
+                quitGameBtn: "Quit Game"
+            },
+            it: {
+                title: "Juniper Green Multiplayer - Versione 1.0.0",
+                createGameBtn: "Crea Partita",
+                joinGameBtn: "Entra in Partita",
+                settingsBtn: "Impostazioni",
+                changelog: "📬 Changelog",
+                gridTitle: "Scegli la dimensione della griglia",
+                modeTitle: "Seleziona modalità di gioco",
+                humanBtn: "Gioca con Umano",
+                computerBtn: "Sfida il Computer",
+                difficultyTitle: "Seleziona la difficoltà",
+                gameGridTitle: "Griglia di Gioco",
+                turnMessage: "È il turno del Giocatore",
+                quitGameBtn: "Abbandona Gioco"
+            },
+                fr: {
+                title: "Juniper Green Multijoueur - Version 1.0.0",
+                createGameBtn: "Créer une Partie",
+                joinGameBtn: "Rejoindre une Partie",
+                settingsBtn: "Paramètres",
+                changelog: "📬 Changelog",
+                gridTitle: "Choisir la taille de la grille",
+                modeTitle: "Choisir le Mode de Jeu",
+                humanBtn: "Jouer avec Humain",
+                computerBtn: "Défier l'Ordinateur",
+                difficultyTitle: "Sélectionner la Difficulté",
+                gameGridTitle: "Grille de Jeu",
+                turnMessage: "C'est le tour du joueur",
+                quitGameBtn: "Quitter la Partie"
+            },
+            es: {
+                title: "Juniper Green Multijugador - Versión 1.0.0",
+                createGameBtn: "Crear Partida",
+                joinGameBtn: "Unirse a la Partida",
+                settingsBtn: "Ajustes",
+                changelog: "📬 Cambios",
+                gridTitle: "Selecciona el Tamaño de la Cuadrícula",
+                modeTitle: "Selecciona Modo de Juego",
+                humanBtn: "Jugar con Humano",
+                computerBtn: "Desafiar al Computador",
+                difficultyTitle: "Seleccionar Dificultad",
+                gameGridTitle: "Cuadrícula del Juego",
+                turnMessage: "Es el turno del jugador",
+                quitGameBtn: "Abandonar la Partida"
+            },
+            de: {
+                title: "Juniper Green Mehrspieler - Version 1.0.0",
+                createGameBtn: "Spiel Erstellen",
+                joinGameBtn: "Spiel Beitreten",
+                settingsBtn: "Einstellungen",
+                changelog: "📬 Änderungsprotokoll",
+                gridTitle: "Wählen Sie die Gittergröße",
+                modeTitle: "Wählen Sie den Spielmodus",
+                humanBtn: "Mit Mensch spielen",
+                computerBtn: "Computer herausfordern",
+                difficultyTitle: "Schwierigkeit Wählen",
+                gameGridTitle: "Spielfeld",
+                turnMessage: "Es ist der Zug des Spielers",
+                quitGameBtn: "Spiel Verlassen"
             }
+        };
 
-            if (email && username && password) {
-                registeredUsers.push({ email, username, password });
-                localStorage.setItem('users', JSON.stringify(registeredUsers));
-                alert('Registrazione avvenuta con successo!');
-                backToAuth();
-            } else {
-                alert('Compila tutti i campi!');
-            }
+        function changeLanguage(language) {
+            document.getElementById("title").textContent = translations[language].title;
+            document.getElementById("createGameBtn").textContent = translations[language].createGameBtn;
+            document.getElementById("joinGameBtn").textContent = translations[language].joinGameBtn;
+            document.getElementById("settingsBtn").textContent = translations[language].settingsBtn;
+            document.getElementById("changelog").textContent = translations[language].changelog;
+            document.getElementById("gridTitle").textContent = translations[language].gridTitle;
+            document.getElementById("modeTitle").textContent = translations[language].modeTitle;
+            document.getElementById("humanBtn").textContent = translations[language].humanBtn;
+            document.getElementById("computerBtn").textContent = translations[language].computerBtn;
+            document.getElementById("difficultyTitle").textContent = translations[language].difficultyTitle;
+            document.getElementById("gameGridTitle").textContent = translations[language].gameGridTitle;
         }
 
         function loginUser() {
-            const email = document.getElementById('emailSignIn').value;
-            const password = document.getElementById('passwordSignIn').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-            const user = registeredUsers.find(user => user.email === email && user.password === password);
+            const user = registeredUsers.find(user => user.username === username && user.password === password);
 
             if (user) {
                 currentUser = user;
-                document.getElementById('signInPage').style.display = 'none';
-                document.getElementById('mainPage').style.display = 'block';
+                alert("Accesso effettuato!");
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('mainMenu').classList.remove('hidden');
             } else {
-                alert('Credenziali non valide!');
-                document.getElementById('emailSignIn').value = ''; // Clear email
-                document.getElementById('passwordSignIn').value = ''; // Clear password
+                alert("Nome utente o password errati!");
             }
         }
 
-        function backToAuth() {
-            document.getElementById('signUpPage').style.display = 'none';
-            document.getElementById('signInPage').style.display = 'none';
-            document.getElementById('authPage').style.display = 'block';
+        function registerUser() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (registeredUsers.find(user => user.username === username)) {
+                alert("Il nome utente è già registrato!");
+                return;
+            }
+
+            if (username && password) {
+                registeredUsers.push({ username, password });
+                localStorage.setItem('users', JSON.stringify(registeredUsers));
+                alert("Registrazione completata!");
+                loginUser();
+            } else {
+                alert("Compila tutti i campi!");
+            }
         }
 
-        function saveSettings() {
-            const playerColor = document.getElementById('playerColor').value;
-            const opponentColor = document.getElementById('opponentColor').value;
-            const language = document.getElementById('languageSelector').value;
-
-            localStorage.setItem('playerColor', playerColor);
-            localStorage.setItem('opponentColor', opponentColor);
-            localStorage.setItem('language', language);
-
-            changeLanguage(language);
-            backToMain();
+        function createGame() {
+            document.getElementById('mainMenu').classList.add('hidden');
+            document.getElementById('gridSelection').classList.remove('hidden');
         }
 
-        function changeLanguage(language) {
-            const translations = {
-                en: {
-                    createGameBtn: "Create a Game",
-                    joinGameBtn: "Join a Game",
-                    challengeComputerBtn: "Challenge the Computer",
-                    settingsBtn: "Settings",
-                    changelogBtn: "Changelogs",
-                    playerColor: "Player Color",
-                    opponentColor: "Opponent Color"
-                },
-                it: {
-                    createGameBtn: "Crea una Partita",
-                    joinGameBtn: "Entra in una Partita",
-                    challengeComputerBtn: "Sfida il Computer",
-                    settingsBtn: "Impostazioni",
-                    changelogBtn: "Changelogs",
-                    playerColor: "Colore del giocatore",
-                    opponentColor: "Colore avversario"
-                },
-                fr: {
-                    createGameBtn: "Créer une Partie",
-                    joinGameBtn: "Rejoindre une Partie",
-                    challengeComputerBtn: "Défier l'Ordinateur",
-                    settingsBtn: "Paramètres",
-                    changelogBtn: "Changelogs",
-                    playerColor: "Couleur du Joueur",
-                    opponentColor: "Couleur de l'Adversaire"
-                },
-                es: {
-                    createGameBtn: "Crear una Partida",
-                    joinGameBtn: "Unirse a una Partida",
-                    challengeComputerBtn: "Desafiar al Computador",
-                    settingsBtn: "Ajustes",
-                    changelogBtn: "Changelogs",
-                    playerColor: "Color del Jugador",
-                    opponentColor: "Color del Oponente"
-                },
-                de: {
-                    createGameBtn: "Erstellen Sie ein Spiel",
-                    joinGameBtn: "Spiel Beitreten",
-                    challengeComputerBtn: "Computer Herausfordern",
-                    settingsBtn: "Einstellungen",
-                    changelogBtn: "Changelogs",
-                    playerColor: "Spielerfarbe",
-                    opponentColor: "Gegnerfarbe"
-                }
-            };
-
-            document.getElementById("createGameBtn").textContent = translations[language].createGameBtn;
-            document.getElementById("joinGameBtn").textContent = translations[language].joinGameBtn;
-            document.getElementById("challengeComputerBtn").textContent = translations[language].challengeComputerBtn;
-            document.getElementById("settingsBtn").textContent = translations[language].settingsBtn;
-            document.getElementById("changelogBtn").textContent = translations[language].changelogBtn;
-            document.getElementById("playerColor").labels[0].textContent = translations[language].playerColor;
-            document.getElementById("opponentColor").labels[0].textContent = translations[language].opponentColor;
-        }
-
-        function showPage(pageId) {
-            const pages = ['gridSelectionPage', 'computerLevelPage', 'changelogPage', 'settingsPage', 'joinGamePage', 'mainPage'];
-            pages.forEach(page => document.getElementById(page).style.display = 'none');
-            document.getElementById(pageId).style.display = 'block';
-        }
-
-        function startGame(gridSize) {
+        function selectGrid(gridSize) {
             currentGridSize = gridSize;
-            showPage('gamePage');
-            setupGrid(gridSize);
+            document.getElementById('gridSelection').classList.add('hidden');
+            document.getElementById('gameModeSelection').classList.remove('hidden');
         }
 
-        function setupGrid(gridSize) {
-            const gridContainer = document.getElementById('gameGrid');
-            gridContainer.innerHTML = ''; // Clear previous grid
+        function startHumanGame() {
+            alert('Partita creata con successo! Codice di invito: 12345');
+        }
 
-            for (let i = 1; i <= gridSize; i++) {
+        function startComputerGame(difficulty = null) {
+            if (!difficulty) {
+                document.getElementById('gameModeSelection').classList.add('hidden');
+                document.getElementById('difficultySelection').classList.remove('hidden');
+            } else {
+                alert('Partita contro il computer in modalità: ' + difficulty);
+                setupGame();
+            }
+        }
+
+        function setupGame() {
+            document.getElementById('difficultySelection').classList.add('hidden');
+            document.getElementById('gameGrid').classList.remove('hidden');
+            const gridContainer = document.getElementById('grid');
+            gridContainer.innerHTML = '';
+            for (let i = 1; i <= currentGridSize; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'grid-cell';
                 cell.textContent = i;
@@ -339,9 +333,6 @@
                 gridContainer.appendChild(cell);
             }
         }
-
-        let currentPlayer = 1;
-        let lastSelectedNumber = null;
 
         function selectNumber(number, cell) {
             if (cell.classList.contains('selected')) return;
@@ -380,11 +371,24 @@
             location.reload();
         }
 
-        function togglePassword(inputId) {
-            const inputField = document.getElementById(inputId);
-            const type = inputField.type === 'password' ? 'text' : 'password';
-            inputField.type = type;
+        function joinGame() {
+            alert('Inserisci il codice partita per unirti.');
+        }
+
+        function openSettings() {
+            alert('Impostazioni.');
+        }
+
+        function showChangelog() {
+            document.getElementById('mainMenu').classList.add('hidden');
+            document.getElementById('changelogPage').classList.remove('hidden');
+        }
+
+        function backToMain() {
+            document.getElementById('changelogPage').classList.add('hidden');
+            document.getElementById('mainMenu').classList.remove('hidden');
         }
     </script>
 </body>
 </html>
+               
