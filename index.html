@@ -36,6 +36,18 @@
         .btn:hover {
             background-color: #ffaa00;
         }
+        #loginRegisterContainer {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        #mainMenu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
         #changelog {
             position: absolute;
             top: 10px;
@@ -67,44 +79,13 @@
             background-color: #ffaa00;
             cursor: not-allowed;
         }
-        .flag-icon {
-            width: 30px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        .language-container {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-        }
-        .login-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .input-field {
-            padding: 10px;
-            margin: 5px;
-            font-size: 1rem;
-        }
     </style>
 </head>
 <body>
     <h1 id="title">Juniper Green Multiplayer - Versione 1.0.0</h1>
 
-    <!-- Language Selection -->
-    <div class="language-container">
-        <img src="flag_en.png" alt="English" class="flag-icon" onclick="changeLanguage('en')">
-        <img src="flag_it.png" alt="Italiano" class="flag-icon" onclick="changeLanguage('it')">
-        <img src="flag_fr.png" alt="Français" class="flag-icon" onclick="changeLanguage('fr')">
-        <img src="flag_es.png" alt="Español" class="flag-icon" onclick="changeLanguage('es')">
-        <img src="flag_de.png" alt="Deutsch" class="flag-icon" onclick="changeLanguage('de')">
-    </div>
-
-    <!-- Login / Signup -->
-    <div id="loginPage" class="login-container">
-        <input type="text" id="username" placeholder="Nome utente" class="input-field">
-        <input type="password" id="password" placeholder="Password" class="input-field">
+    <!-- Login / Register Buttons -->
+    <div id="loginRegisterContainer">
         <button class="btn" onclick="loginUser()">Accedi</button>
         <button class="btn" onclick="registerUser()">Registrati</button>
     </div>
@@ -165,134 +146,15 @@
         let currentGridSize = 10;
         let currentPlayer = 1;
         let lastSelectedNumber = null;
-        let registeredUsers = JSON.parse(localStorage.getItem('users')) || [];
-        let currentUser = null;
-
-        const translations = {
-            en: {
-                title: "Juniper Green Multiplayer - Version 1.0.0",
-                createGameBtn: "Create Game",
-                joinGameBtn: "Join Game",
-                settingsBtn: "Settings",
-                changelog: "📬 Changelog",
-                gridTitle: "Choose Grid Size",
-                modeTitle: "Choose Game Mode",
-                humanBtn: "Play with Human",
-                computerBtn: "Challenge Computer",
-                difficultyTitle: "Select Difficulty",
-                gameGridTitle: "Game Grid",
-                turnMessage: "It's Player's Turn",
-                quitGameBtn: "Quit Game"
-            },
-            it: {
-                title: "Juniper Green Multiplayer - Versione 1.0.0",
-                createGameBtn: "Crea Partita",
-                joinGameBtn: "Entra in Partita",
-                settingsBtn: "Impostazioni",
-                changelog: "📬 Changelog",
-                gridTitle: "Scegli la dimensione della griglia",
-                modeTitle: "Seleziona modalità di gioco",
-                humanBtn: "Gioca con Umano",
-                computerBtn: "Sfida il Computer",
-                difficultyTitle: "Seleziona la difficoltà",
-                gameGridTitle: "Griglia di Gioco",
-                turnMessage: "È il turno del Giocatore",
-                quitGameBtn: "Abbandona Gioco"
-            },
-                fr: {
-                title: "Juniper Green Multijoueur - Version 1.0.0",
-                createGameBtn: "Créer une Partie",
-                joinGameBtn: "Rejoindre une Partie",
-                settingsBtn: "Paramètres",
-                changelog: "📬 Changelog",
-                gridTitle: "Choisir la taille de la grille",
-                modeTitle: "Choisir le Mode de Jeu",
-                humanBtn: "Jouer avec Humain",
-                computerBtn: "Défier l'Ordinateur",
-                difficultyTitle: "Sélectionner la Difficulté",
-                gameGridTitle: "Grille de Jeu",
-                turnMessage: "C'est le tour du joueur",
-                quitGameBtn: "Quitter la Partie"
-            },
-            es: {
-                title: "Juniper Green Multijugador - Versión 1.0.0",
-                createGameBtn: "Crear Partida",
-                joinGameBtn: "Unirse a la Partida",
-                settingsBtn: "Ajustes",
-                changelog: "📬 Cambios",
-                gridTitle: "Selecciona el Tamaño de la Cuadrícula",
-                modeTitle: "Selecciona Modo de Juego",
-                humanBtn: "Jugar con Humano",
-                computerBtn: "Desafiar al Computador",
-                difficultyTitle: "Seleccionar Dificultad",
-                gameGridTitle: "Cuadrícula del Juego",
-                turnMessage: "Es el turno del jugador",
-                quitGameBtn: "Abandonar la Partida"
-            },
-            de: {
-                title: "Juniper Green Mehrspieler - Version 1.0.0",
-                createGameBtn: "Spiel Erstellen",
-                joinGameBtn: "Spiel Beitreten",
-                settingsBtn: "Einstellungen",
-                changelog: "📬 Änderungsprotokoll",
-                gridTitle: "Wählen Sie die Gittergröße",
-                modeTitle: "Wählen Sie den Spielmodus",
-                humanBtn: "Mit Mensch spielen",
-                computerBtn: "Computer herausfordern",
-                difficultyTitle: "Schwierigkeit Wählen",
-                gameGridTitle: "Spielfeld",
-                turnMessage: "Es ist der Zug des Spielers",
-                quitGameBtn: "Spiel Verlassen"
-            }
-        };
-
-        function changeLanguage(language) {
-            document.getElementById("title").textContent = translations[language].title;
-            document.getElementById("createGameBtn").textContent = translations[language].createGameBtn;
-            document.getElementById("joinGameBtn").textContent = translations[language].joinGameBtn;
-            document.getElementById("settingsBtn").textContent = translations[language].settingsBtn;
-            document.getElementById("changelog").textContent = translations[language].changelog;
-            document.getElementById("gridTitle").textContent = translations[language].gridTitle;
-            document.getElementById("modeTitle").textContent = translations[language].modeTitle;
-            document.getElementById("humanBtn").textContent = translations[language].humanBtn;
-            document.getElementById("computerBtn").textContent = translations[language].computerBtn;
-            document.getElementById("difficultyTitle").textContent = translations[language].difficultyTitle;
-            document.getElementById("gameGridTitle").textContent = translations[language].gameGridTitle;
-        }
 
         function loginUser() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            const user = registeredUsers.find(user => user.username === username && user.password === password);
-
-            if (user) {
-                currentUser = user;
-                alert("Accesso effettuato!");
-                document.getElementById('loginPage').classList.add('hidden');
-                document.getElementById('mainMenu').classList.remove('hidden');
-            } else {
-                alert("Nome utente o password errati!");
-            }
+            document.getElementById('loginRegisterContainer').classList.add('hidden');
+            document.getElementById('mainMenu').classList.remove('hidden');
         }
 
         function registerUser() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            if (registeredUsers.find(user => user.username === username)) {
-                alert("Il nome utente è già registrato!");
-                return;
-            }
-
-            if (username && password) {
-                registeredUsers.push({ username, password });
-                localStorage.setItem('users', JSON.stringify(registeredUsers));
-                alert("Registrazione completata!");
-                loginUser();
-            } else {
-                alert("Compila tutti i campi!");
-            }
+            alert("Registrazione completata!");
+            loginUser();
         }
 
         function createGame() {
@@ -367,7 +229,7 @@
             document.getElementById('gameMessage').textContent = `È il turno del Giocatore ${currentPlayer}`;
         }
 
-        function quitGame() {
+                function quitGame() {
             location.reload();
         }
 
@@ -376,6 +238,8 @@
         }
 
         function openSettings() {
+            document.getElementById('mainMenu').classList.add('hidden');
+            // Aggiungi la logica delle impostazioni qui (es. selezione lingua)
             alert('Impostazioni.');
         }
 
@@ -391,4 +255,3 @@
     </script>
 </body>
 </html>
-               
