@@ -3,33 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bluetooth Device Scanner</title>
+    <title>Bluetooth & Condivisione Schermo</title>
 </head>
 <body>
-    <h1>Scansiona dispositivi Bluetooth</h1>
-    <button id="scan">Scansiona dispositivi</button>
+    <h1>Connessione Bluetooth e Condivisione Schermo</h1>
+
+    <!-- Messaggio per dispositivi non compatibili con Bluetooth -->
+    <div id="noBluetoothSupport" style="display:none;">
+        <p>La scansione Bluetooth non è supportata su questo browser.</p>
+    </div>
+
+    <!-- Sezione Bluetooth (solo per browser compatibili) -->
+    <button id="scan" style="display:none;">Scansiona dispositivi Bluetooth</button>
     <ul id="deviceList"></ul>
 
+    <!-- Sezione per la condivisione dello schermo -->
+    <button id="shareScreen">Condividi lo schermo</button>
+    <div id="screenContainer"></div>
+
     <script>
-        const scanButton = document.getElementById('scan');
-        const deviceList = document.getElementById('deviceList');
+        // Verifica se Web Bluetooth è supportato nel browser
+        if ('bluetooth' in navigator) {
+            document.getElementById('scan').style.display = 'block'; // Mostra il pulsante solo se Bluetooth è supportato
 
-        scanButton.addEventListener('click', async () => {
+            const scanButton = document.getElementById('scan');
+            const deviceList = document.getElementById('deviceList');
+
+            scanButton.addEventListener('click', async () => {
+                try {
+                    const device = await navigator.bluetooth.requestDevice({
+                        acceptAllDevices: true,
+                        optionalServices: ['battery_service']
+                    });
+
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `Dispositivo trovato: ${device.name} (ID: ${device.id})`;
+                    deviceList.appendChild(listItem);
+
+                    const code = prompt('Inserisci il codice di connessione per questo dispositivo:');
+                    if (code === '1234') {
+                        alert('Codice corretto! Connesso al dispositivo.');
+                    } else {
+                        alert('Codice errato. Riprova.');
+                    }
+
+                } catch (error) {
+                    console.error('Errore durante la scansione Bluetooth:', error);
+                    alert('Errore durante la scansione Bluetooth. Usa un browser compatibile.');
+                }
+            });
+        } else {
+            // Se Bluetooth non è supportato, mostra un messaggio
+            document.getElementById('noBluetoothSupport').style.display = 'block';
+        }
+
+        // Funzione per la condivisione dello schermo (funziona su tutti i browser principali, inclusi Safari)
+        const shareScreenButton = document.getElementById('shareScreen');
+        const screenContainer = document.getElementById('screenContainer');
+
+        shareScreenButton.addEventListener('click', async () => {
             try {
-                // Avvia la scansione dei dispositivi Bluetooth vicini
-                const device = await navigator.bluetooth.requestDevice({
-                    acceptAllDevices: true, // Scansiona tutti i dispositivi senza filtri
-                    optionalServices: ['battery_service'] // Puoi aggiungere altri servizi opzionali se necessari
-                });
-
-                // Aggiungi il dispositivo trovato alla lista
-                const listItem = document.createElement('li');
-                listItem.textContent = `Dispositivo trovato: ${device.name} (ID: ${device.id})`;
-                deviceList.appendChild(listItem);
-
+                const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                const videoElement = document.createElement('video');
+                videoElement.srcObject = stream;
+                videoElement.play();
+                screenContainer.appendChild(videoElement);
             } catch (error) {
-                console.error(error);
-                alert('Errore durante la scansione dei dispositivi. Verifica di utilizzare un browser compatibile e un contesto HTTPS.');
+                console.error('Errore durante la condivisione dello schermo:', error);
+                alert('Errore durante la condivisione dello schermo.');
             }
         });
     </script>
