@@ -3,96 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Platform</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+    <title>Send Message to Discord</title>
+    <script>
+        // Funzione per inviare il messaggio al Webhook Discord
+        function sendMessageToDiscord() {
+            const message = document.getElementById('message').value; // Recupera il messaggio dall'input
+
+            const webhookUrl = 'https://discord.com/api/webhooks/1292490801372205076/1o9dJFZZ4hPMQA4h2bgswR7RmnEQ-s9afgYTQ5cjOcv9Txzatu2HgvvsqDoLlV9hrV-Y'; // URL del Webhook di Discord
+
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    content: message  // Il contenuto del messaggio da inviare
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Messaggio inviato a Discord con successo!');
+                } else {
+                    alert('Errore nell\'invio del messaggio');
+                }
+            })
+            .catch(error => {
+                console.error('Errore:', error);
+            });
+        }
+    </script>
 </head>
 <body>
-    <!-- Home / Login -->
-    <div class="container" id="login-section">
-        <div class="form-container">
-            <h1>Login or Register</h1>
-            <label for="login-role">Select Role</label>
-            <select id="login-role">
-                <option value="admin">Admin</option>
-                <option value="teacher">Teacher</option>
-                <option value="student">Student</option>
-            </select>
-            
-            <label for="username">Email (Admin) or Username</label>
-            <input type="text" id="username" placeholder="Email or Username">
-            
-            <label for="password">Password</label>
-            <input type="password" id="password" placeholder="Password">
-            
-            <button class="btn-primary" onclick="login()">Login</button>
 
-            <h3>Register as Admin</h3>
-            <label for="register-email">Email</label>
-            <input type="email" id="register-email" placeholder="Email">
+    <h1>Invia un messaggio a Discord</h1>
 
-            <label for="register-school">School Name</label>
-            <input type="text" id="register-school" placeholder="School Name">
+    <input type="text" id="message" placeholder="Inserisci il messaggio" />
+    <button onclick="sendMessageToDiscord()">Invia</button>
 
-            <label for="register-password">Password</label>
-            <input type="password" id="register-password" placeholder="Password">
-
-            <label for="register-confirm-password">Confirm Password</label>
-            <input type="password" id="register-confirm-password" placeholder="Confirm Password">
-            
-            <button class="btn-primary" onclick="registerAdmin()">Register</button>
-        </div>
-    </div>
-
-    <!-- Admin Dashboard -->
-    <div class="container" id="admin-dashboard" style="display:none;">
-        <h2>Welcome Admin! Configure your school</h2>
-        <h3>Create Teacher Profiles</h3>
-        <label for="teacher-name">Teacher Name</label>
-        <input type="text" id="teacher-name" placeholder="Teacher Name">
-        
-        <label for="teacher-password">Teacher Password</label>
-        <input type="password" id="teacher-password" placeholder="Teacher Password">
-        
-        <button class="btn-primary" onclick="createTeacher()">Create Teacher</button>
-
-        <h3>Create Class</h3>
-        <label for="class-name">Class Name</label>
-        <input type="text" id="class-name" placeholder="Class Name">
-        
-        <label for="teacher-selector">Select Teacher</label>
-        <select id="teacher-selector"></select>
-        
-        <h3>Students</h3>
-        <label for="student-name">Student Name</label>
-        <input type="text" id="student-name" placeholder="Student Name">
-        
-        <label for="student-password">Student Password</label>
-        <input type="password" id="student-password" placeholder="Student Password">
-        
-        <button class="btn-primary" onclick="addStudent()">Add Student</button>
-        <button class="btn-secondary" onclick="confirmClass()">Confirm Class</button>
-        <div id="class-list"></div>
-    </div>
-
-    <!-- Teacher Dashboard -->
-    <div class="container" id="teacher-dashboard" style="display:none;">
-        <h2>Welcome Teacher!</h2>
-        <label for="teacher-class-selector">Select Class</label>
-        <select id="teacher-class-selector"></select>
-        
-        <button class="btn-primary" onclick="createLesson()">Create Lesson</button>
-        <div id="lesson-list"></div>
-    </div>
-
-    <!-- Student Dashboard -->
-    <div class="container" id="student-dashboard" style="display:none;">
-        <h2>Welcome Student!</h2>
-        <div id="blocklyDiv" style="height: 480px; width: 100%;"></div>
-        <button class="btn-primary" onclick="saveProject()">Save Project</button>
-        <button class="btn-secondary" onclick="loadProject()">Load Project</button>
-    </div>
-
-    <script src="app.js"></script>
 </body>
 </html>
