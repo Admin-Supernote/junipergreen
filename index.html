@@ -3,36 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application Portal</title>
+    <title>YouTube Channel Manager</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background: #f4f7f6;
-            margin: 0;
-            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #e0e0e0;
+            margin: 0;
         }
 
         .container {
-            background: #fff;
+            background-color: white;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
         }
 
-        h1, h2 {
-            text-align: center;
+        h1 {
+            margin-bottom: 20px;
             color: #333;
         }
 
         input {
-            width: calc(100% - 22px);
+            width: calc(100% - 20px);
             padding: 10px;
             margin-bottom: 10px;
             border: 1px solid #ccc;
@@ -40,184 +38,104 @@
         }
 
         button {
-            width: 100%;
             padding: 10px;
             background-color: #28a745;
-            color: #fff;
+            color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
         }
 
         button:hover {
             background-color: #218838;
         }
 
+        .message {
+            margin-top: 10px;
+            color: #333;
+        }
+
         .error {
             color: red;
-            text-align: center;
-            margin-bottom: 10px;
         }
 
-        .success {
-            color: green;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .application-form {
+        .hidden {
             display: none;
-        }
-
-        .question {
-            margin: 20px 0;
         }
     </style>
 </head>
 <body>
 
-    <div class="container" id="auth-container">
-        <h1 id="auth-title">Login</h1>
-        <div id="error-message" class="error"></div>
-        <input type="text" id="name" placeholder="Name" style="display: none;">
-        <input type="email" id="email" placeholder="Email">
+    <!-- Login Form -->
+    <div class="container" id="login-container">
+        <h1>Login</h1>
+        <input type="text" id="username" placeholder="Username">
         <input type="password" id="password" placeholder="Password">
-        <button onclick="handleAuth()">Login</button>
-        <p style="text-align: center; margin-top: 10px;">
-            <a href="#" onclick="toggleAuth()">Don't have an account? Register</a>
-        </p>
+        <button onclick="login()">Login</button>
+        <div id="login-message" class="message error"></div>
     </div>
 
-    <!-- Application Selection -->
-    <div class="container application-form" id="application-container">
-        <h2>Choose an Application</h2>
-        <button onclick="startApplication('builder')">Builder Application</button>
-        <button onclick="startApplication('developer')">Developer Application</button>
-    </div>
-
-    <!-- Application Form -->
-    <div class="container application-form" id="form-container">
-        <h2 id="application-title">Application</h2>
-        <div id="application-questions">
-            <!-- Dynamic questions will be inserted here -->
-        </div>
-        <button onclick="submitApplication()">Submit Application</button>
+    <!-- Add YouTube Channel Form (Hidden until login) -->
+    <div class="container hidden" id="main-container">
+        <h1>Add YouTube Channel</h1>
+        <input type="text" id="youtube-url" placeholder="Enter YouTube Channel URL">
+        <button onclick="addChannel()">Add Channel</button>
+        <div id="channel-message" class="message"></div>
     </div>
 
     <script>
-        const webhookUrl = 'https://discord.com/api/webhooks/1292492794178310154/jjbo9gQGB6lTE5neMMZBzZImbE_NqYYlRFTOlXLvD8qDKduXDAH67aWYKLiiBSV8tl3x';
-        let users = [];
-        let currentUser = null;
-        let currentApplication = '';
-        let applicationStatus = {};
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbw0V8aeDslI3Y2tcD9HxU9Ng_hjYUJnHtWH5lG0qAugtVGfYZyNuOKVLzXEwDFtXob4/exec';  // L'URL del tuo Google Apps Script
 
-        // Toggle between login and register
-        function toggleAuth() {
-            const authTitle = document.getElementById('auth-title');
-            const nameInput = document.getElementById('name');
-            const errorMessage = document.getElementById('error-message');
-            errorMessage.textContent = '';
-
-            if (authTitle.textContent === 'Login') {
-                authTitle.textContent = 'Register';
-                nameInput.style.display = 'block';
-                document.querySelector('button').textContent = 'Register';
-            } else {
-                authTitle.textContent = 'Login';
-                nameInput.style.display = 'none';
-                document.querySelector('button').textContent = 'Login';
-            }
-        }
-
-        // Handle login or registration
-        function handleAuth() {
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
+        // Funzione di login
+        function login() {
+            const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const authTitle = document.getElementById('auth-title');
-            const errorMessage = document.getElementById('error-message');
+            const loginMessage = document.getElementById('login-message');
 
-            errorMessage.textContent = '';
-
-            if (authTitle.textContent === 'Register') {
-                if (users.some(user => user.email === email || user.name === name)) {
-                    errorMessage.textContent = 'Account already exists!';
-                } else {
-                    users.push({ name, email, password });
-                    errorMessage.className = 'success';
-                    errorMessage.textContent = 'Registration successful! You can now log in.';
-                    toggleAuth();
-                }
+            // Verifica le credenziali
+            if (username === 'AngelicYt' && password === 'AngelicPass') {
+                // Nascondi il modulo di login e mostra il modulo per aggiungere il canale
+                document.getElementById('login-container').classList.add('hidden');
+                document.getElementById('main-container').classList.remove('hidden');
+                loginMessage.textContent = '';
             } else {
-                const user = users.find(user => user.email === email && user.password === password);
-                if (user) {
-                    currentUser = user;
-                    showApplicationSelection();
-                } else {
-                    errorMessage.textContent = 'Invalid login credentials!';
-                }
+                // Mostra un messaggio di errore
+                loginMessage.textContent = 'Invalid username or password';
             }
         }
 
-        // Show application selection
-        function showApplicationSelection() {
-            document.getElementById('auth-container').style.display = 'none';
-            document.getElementById('application-container').style.display = 'block';
+        // Funzione per aggiungere un canale YouTube
+        function addChannel() {
+            const youtubeUrl = document.getElementById('youtube-url').value;
+            const messageDiv = document.getElementById('channel-message');
 
-            if (applicationStatus[currentUser.email]) {
-                alert(`Your application status: ${applicationStatus[currentUser.email]}`);
+            if (!youtubeUrl) {
+                messageDiv.textContent = 'Please enter a valid YouTube URL.';
+                return;
             }
-        }
 
-        // Start an application
-        function startApplication(type) {
-            currentApplication = type;
-            document.getElementById('application-container').style.display = 'none';
-            document.getElementById('form-container').style.display = 'block';
-            document.getElementById('application-title').textContent = type.charAt(0).toUpperCase() + type.slice(1) + ' Application';
-
-            // Generate questions based on application type
-            let questionsHtml = '';
-            if (type === 'builder') {
-                questionsHtml += '<div class="question">Why do you want to be a builder?<input type="text" id="question1"></div>';
-                questionsHtml += '<div class="question">Show us your previous builds (links)<input type="text" id="question2"></div>';
-            } else if (type === 'developer') {
-                questionsHtml += '<div class="question">Why do you want to be a developer?<input type="text" id="question1"></div>';
-                questionsHtml += '<div class="question">What programming languages do you know?<input type="text" id="question2"></div>';
-            }
-            document.getElementById('application-questions').innerHTML = questionsHtml;
-        }
-
-        // Submit application
-        function submitApplication() {
-            const question1 = document.getElementById('question1').value;
-            const question2 = document.getElementById('question2').value;
-
-            // Send application to Discord Webhook
-            fetch(webhookUrl, {
+            // Invia l'URL del canale a Google Apps Script
+            fetch(scriptUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    embeds: [{
-                        title: `${currentUser.name}'s ${currentApplication.charAt(0).toUpperCase() + currentApplication.slice(1)} Application`,
-                        color: 3447003, // Blue color
-                        fields: [
-                            { name: "Question 1", value: question1 },
-                            { name: "Question 2", value: question2 }
-                        ]
-                    }]
-                })
-            }).then(response => {
-                if (response.ok) {
-                    alert('Application submitted!');
-                    applicationStatus[currentUser.email] = 'Pending';
-                    showApplicationSelection();
+                body: JSON.stringify({ url: youtubeUrl })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    messageDiv.textContent = 'Channel added successfully!';
+                    document.getElementById('youtube-url').value = '';
                 } else {
-                    alert('Failed to submit application');
+                    messageDiv.textContent = 'Failed to add channel. Please try again.';
                 }
+            })
+            .catch(error => {
+                messageDiv.textContent = 'An error occurred. Please try again.';
+                console.error('Error:', error);
             });
         }
     </script>
