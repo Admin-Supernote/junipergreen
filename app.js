@@ -5,7 +5,7 @@ let students = {};
 
 function login() {
     const role = document.getElementById('login-role').value;
-    const username = document.getElementById('username').value;
+    const username = document.getElementById('username').value;  // Username or email for admin
     const password = document.getElementById('password').value;
 
     if (role === 'admin' && localStorage.getItem('admin')) {
