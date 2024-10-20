@@ -1,78 +1,66 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bluetooth & Condivisione Schermo</title>
+    <title>School Platform</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
 </head>
 <body>
-    <h1>Connessione Bluetooth e Condivisione Schermo</h1>
-
-    <!-- Messaggio per dispositivi non compatibili con Bluetooth -->
-    <div id="noBluetoothSupport" style="display:none;">
-        <p>La scansione Bluetooth non è supportata su questo browser.</p>
+    <!-- Home / Login -->
+    <div id="login-section">
+        <h1>Login or Register</h1>
+        <select id="login-role">
+            <option value="admin">Admin</option>
+            <option value="teacher">Teacher</option>
+            <option value="student">Student</option>
+        </select>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <h3>Register as Admin</h3>
+        <input type="email" id="register-email" placeholder="Email">
+        <input type="text" id="register-school" placeholder="School Name">
+        <input type="password" id="register-password" placeholder="Password">
+        <input type="password" id="register-confirm-password" placeholder="Confirm Password">
+        <button onclick="registerAdmin()">Register</button>
     </div>
 
-    <!-- Sezione Bluetooth (solo per browser compatibili) -->
-    <button id="scan" style="display:none;">Scansiona dispositivi Bluetooth</button>
-    <ul id="deviceList"></ul>
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" style="display:none;">
+        <h2>Welcome Admin! Configure your school</h2>
+        <h3>Create Teacher Profiles</h3>
+        <input type="text" id="teacher-name" placeholder="Teacher Name">
+        <input type="password" id="teacher-password" placeholder="Teacher Password">
+        <button onclick="createTeacher()">Create Teacher</button>
+        <h3>Create Class</h3>
+        <input type="text" id="class-name" placeholder="Class Name">
+        <select id="teacher-selector"></select>
+        <h3>Students</h3>
+        <input type="text" id="student-name" placeholder="Student Name">
+        <input type="password" id="student-password" placeholder="Student Password">
+        <button onclick="addStudent()">Add Student</button>
+        <button onclick="confirmClass()">Confirm Class</button>
+        <div id="class-list"></div>
+    </div>
 
-    <!-- Sezione per la condivisione dello schermo -->
-    <button id="shareScreen">Condividi lo schermo</button>
-    <div id="screenContainer"></div>
+    <!-- Teacher Dashboard -->
+    <div id="teacher-dashboard" style="display:none;">
+        <h2>Welcome Teacher!</h2>
+        <select id="teacher-class-selector"></select>
+        <button onclick="createLesson()">Create Lesson</button>
+        <div id="lesson-list"></div>
+    </div>
 
-    <script>
-        // Verifica se Web Bluetooth è supportato nel browser
-        if ('bluetooth' in navigator) {
-            document.getElementById('scan').style.display = 'block'; // Mostra il pulsante solo se Bluetooth è supportato
+    <!-- Student Dashboard -->
+    <div id="student-dashboard" style="display:none;">
+        <h2>Welcome Student!</h2>
+        <div id="blocklyDiv" style="height: 480px; width: 100%;"></div>
+        <button onclick="saveProject()">Save Project</button>
+        <button onclick="loadProject()">Load Project</button>
+    </div>
 
-            const scanButton = document.getElementById('scan');
-            const deviceList = document.getElementById('deviceList');
-
-            scanButton.addEventListener('click', async () => {
-                try {
-                    const device = await navigator.bluetooth.requestDevice({
-                        acceptAllDevices: true,
-                        optionalServices: ['battery_service']
-                    });
-
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `Dispositivo trovato: ${device.name} (ID: ${device.id})`;
-                    deviceList.appendChild(listItem);
-
-                    const code = prompt('Inserisci il codice di connessione per questo dispositivo:');
-                    if (code === '1234') {
-                        alert('Codice corretto! Connesso al dispositivo.');
-                    } else {
-                        alert('Codice errato. Riprova.');
-                    }
-
-                } catch (error) {
-                    console.error('Errore durante la scansione Bluetooth:', error);
-                    alert('Errore durante la scansione Bluetooth. Usa un browser compatibile.');
-                }
-            });
-        } else {
-            // Se Bluetooth non è supportato, mostra un messaggio
-            document.getElementById('noBluetoothSupport').style.display = 'block';
-        }
-
-        // Funzione per la condivisione dello schermo (funziona su tutti i browser principali, inclusi Safari)
-        const shareScreenButton = document.getElementById('shareScreen');
-        const screenContainer = document.getElementById('screenContainer');
-
-        shareScreenButton.addEventListener('click', async () => {
-            try {
-                const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-                const videoElement = document.createElement('video');
-                videoElement.srcObject = stream;
-                videoElement.play();
-                screenContainer.appendChild(videoElement);
-            } catch (error) {
-                console.error('Errore durante la condivisione dello schermo:', error);
-                alert('Errore durante la condivisione dello schermo.');
-            }
-        });
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
